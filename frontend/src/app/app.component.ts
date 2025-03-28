@@ -6,19 +6,9 @@ import { NavBarComponent } from './nav-bar/nav-bar.component';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, HomeComponent, NavBarComponent],
-  template: `
-    <main>
-      <app-nav-bar></app-nav-bar>
-      <!-- <header> -->
-        <!-- <h1 class="app-logo">Contextualizer</h1> -->
-      <!-- </header> -->
-      <section>
-        <app-home></app-home>
-      </section>
-    </main>
-    `,
+  templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  
+  title='Contextualizer';
 }

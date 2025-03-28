@@ -1,16 +1,17 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-nav-bar',
-  imports: [],
+  imports: [RouterLink],
   template: `
     <header>
       <h3 class="logo">Contextualizer</h3>
-      <nav>
+      <nav >
         <ul class="nav-links">
-          <li><a href="#">Home</a></li>
-          <li><a href="#">About</a></li>
-          <li><a href="#">Account</a></li>
+          <li><a routerLink="">Home</a></li>
+          <li><a routerLink="/about">About</a></li>
+          <li><a routerLink="/account">Account</a></li>
         </ul>
       </nav>
     </header>

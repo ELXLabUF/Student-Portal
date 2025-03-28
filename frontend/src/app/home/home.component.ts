@@ -4,14 +4,14 @@ import { Component } from '@angular/core';
   selector: 'app-home',
   imports: [],
   template: `
-    <main>
-      <section>
-        
-      </section>
+    <main class="main-container">
+      <h1>Main Menu</h1>
+      <div class="menu-buttons">
+        <button>My Stories</button>
+        <button>Class Stories</button>
+      </div>
     </main>
   `,
-  styleUrl: './home.component.css'
+  styleUrl: './home.component.css',
 })
-export class HomeComponent {
-
-}
+export class HomeComponent {}

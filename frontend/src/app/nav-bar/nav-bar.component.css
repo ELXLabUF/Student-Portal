@@ -2,6 +2,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    color: white;
   }
   
   header {
@@ -10,7 +11,7 @@
     align-items: center;
     width: 100%;
     padding: 20px 20px;
-    background-color: white;
+    background-color: orange;
     box-shadow: 0 2px 4px 0 rgba(0,0,0,.2);
   }
   
@@ -24,8 +25,8 @@
   }
   
   .nav-links a{
-    font-weight: 500;
-    color: #000000;
+    font-weight: bold;
+    font-size: large;
     text-decoration: none;
   }
   
@@ -38,6 +39,6 @@
   }
   
   .nav-links li a:hover {
-    color: #f28900;
+    color: #cc6600;
   }
   

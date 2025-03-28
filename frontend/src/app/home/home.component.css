@@ -1,0 +1,32 @@
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80vh;
+    text-align: center;
+  }
+  
+  /* Menu buttons */
+  .menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Space between buttons */
+  }
+  
+  .menu-buttons button {
+    background-color: orange;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 1000px; /* Limit button width */
+  }
+
+  .menu-buttons button:hover {
+    transition: 0.3s ease;
+    background-color: #cc6600; /* Darker shade on hover */
+  }
