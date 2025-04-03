@@ -15,8 +15,9 @@
     box-shadow: 0 2px 4px 0 rgba(0,0,0,.2);
   }
   
-  .logo {
+  .logo a{
     margin-right: auto;
+    text-decoration: none;
   }
   
   .nav-links {
