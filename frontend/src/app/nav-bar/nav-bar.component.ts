@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router';
   template: `
     <header>
       <h3 class="logo"><a routerLink="">Contextualizer</a></h3>
-      <nav >
+      <nav>
         <ul class="nav-links">
           <li><a routerLink="/about">About</a></li>
           <li><a routerLink="/account">Account</a></li>

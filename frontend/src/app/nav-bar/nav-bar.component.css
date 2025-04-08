@@ -11,7 +11,8 @@
     align-items: center;
     width: 100%;
     padding: 20px 20px;
-    background-color: orange;
+    font-size: 24px;
+    background-color: #f80;
     box-shadow: 0 2px 4px 0 rgba(0,0,0,.2);
   }
   
@@ -27,7 +28,7 @@
   
   .nav-links a{
     font-weight: bold;
-    font-size: large;
+    font-size: 24px;
     text-decoration: none;
   }
   
