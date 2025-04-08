@@ -1,29 +1,26 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-flashcard',
+  imports: [],
   template: `
-    <div class="flashcard-container" (click)="toggleFlip()">
-      <div class="flashcard" [class.flipped]="isFlipped">
-        <div class="front">
-          <img
-            [src]="frontImage"
-            alt="Generated Image"
-          />
-        </div>
-        <div class="back">
-          <p>{{ backText }}</p>
-        </div>
+    <div
+      class="flashcard-container"
+      [class.flipped]="isFlipped"
+      (click)="toggleFlip()"
+    >
+      <div class="flashcard">
+        <div class="front">{{ frontText }}</div>
+        <div class="back">{{ backText }}</div>
       </div>
     </div>
   `,
-  imports: [CommonModule],
+  styleUrl: './flashcard.component.css',
 })
 export class FlashcardComponent {
-  @Input() frontImage: string = '';
-  @Input() backText: string = 'Description';
-
+  @Input() frontText: string = '';
+  @Input() backText: string = 'Back';
+  
   isFlipped: boolean = false;
 
   toggleFlip() {

@@ -1,18 +1,18 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CardComponent } from '../card/card.component';
+import { FlashcardComponent } from '../flashcard/flashcard.component';
 
 @Component({
   selector: 'app-class-stories',
-  imports: [CommonModule, CardComponent],
+  imports: [CommonModule, FlashcardComponent],
   template: `
     <h1>Class Stories</h1>
     <div class="flashcard-grid">
-      <app-card
+      <app-flashcard
         *ngFor="let card of cards"
         [frontText]="card.frontText"
         [backText]="card.backText"
-      ></app-card>
+      ></app-flashcard>
     </div>
   `,
   styleUrl: './class-stories.component.css',

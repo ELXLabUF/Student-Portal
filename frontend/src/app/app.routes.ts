@@ -4,7 +4,6 @@ import { AboutComponent } from './about/about.component';
 import { AccountComponent } from './account/account.component';
 import { StudentStoriesComponent } from './student-stories/student-stories.component';
 import { ClassStoriesComponent } from './class-stories/class-stories.component';
-import { GravityComponent } from './gravity/gravity.component'; // Import the Gravity component
 
 export const routes: Routes = [
   { path: '', component: HomeComponent }, // Default route
@@ -12,5 +11,4 @@ export const routes: Routes = [
   { path: 'class', component: ClassStoriesComponent }, // Assuming 'class' is also handled by HomeComponent
   { path: 'about', component: AboutComponent},
   { path: 'account', component: AccountComponent},
-  { path: 'gravity',  component: GravityComponent }, // Add this line for the Gravity component
 ];

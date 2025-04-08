@@ -1,29 +1,24 @@
 import { Component, Input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-card',
-  imports: [],
+  // (only required imports for RouterLink if using standalone components)
+  imports: [RouterLink],
   template: `
-    <div
-      class="flashcard-container"
-      [class.flipped]="isFlipped"
-      (click)="toggleFlip()"
-    >
-      <div class="flashcard">
-        <div class="front">{{ frontText }}</div>
-        <div class="back">{{ backText }}</div>
+    <div class="card-container">
+      <div class="card" [routerLink]="link">
+        <h2 class="card-title">{{ title }}</h2>
+        <p class="card-description">{{ description }}</p>
       </div>
     </div>
   `,
-  styleUrl: './card.component.css',
+  styleUrls: ['./card.component.css'],
+  standalone: true,
 })
 export class CardComponent {
-  @Input() frontText: string = '';
-  @Input() backText: string = 'Back';
-  
-  isFlipped: boolean = false;
-
-  toggleFlip() {
-    this.isFlipped = !this.isFlipped;
-  }
+  @Input() title!: string;
+  @Input() description!: string;
+  // You can use either a string or an array to build dynamic links.
+  @Input() link: any;
 }
