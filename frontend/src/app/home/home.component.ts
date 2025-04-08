@@ -8,8 +8,8 @@ import { RouterLink } from '@angular/router';
     <main class="main-container">
       <h1 class="title">Main Menu</h1>
       <div class="menu-buttons">
-        <button><a routerLink="/stories">My Stories</a></button>
-        <button><a routerLink="/class">Class Stories</a></button>
+        <button routerLink="/stories">My Stories</button>
+        <button routerLink="/class">Class Stories</button>
       </div>
     </main>
   `,
