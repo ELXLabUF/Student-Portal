@@ -10,6 +10,7 @@ import { RouterLink } from '@angular/router';
       <div class="card" [routerLink]="link">
         <h2 class="card-title">{{ title }}</h2>
         <p class="card-description">{{ description }}</p>
+        <p class="card-date">{{ date }}</p>
       </div>
     </div>
   `,
@@ -19,6 +20,7 @@ import { RouterLink } from '@angular/router';
 export class CardComponent {
   @Input() title!: string;
   @Input() description!: string;
+  @Input() date!: string;
   // You can use either a string or an array to build dynamic links.
   @Input() link: any;
 }
