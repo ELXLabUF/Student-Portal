@@ -3,14 +3,13 @@ import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-card',
-  // (only required imports for RouterLink if using standalone components)
   imports: [RouterLink],
   template: `
     <div class="card-container">
-      <div class="card" [routerLink]="link">
+      <div class="card" routerLink="transcripts">
         <h2 class="card-title">{{ title }}</h2>
-        <p class="card-description">{{ description }}</p>
         <p class="card-date">{{ date }}</p>
+        <p class="card-description">{{ description }}</p>
       </div>
     </div>
   `,

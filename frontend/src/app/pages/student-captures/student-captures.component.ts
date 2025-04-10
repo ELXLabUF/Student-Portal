@@ -26,25 +26,23 @@ export class StudentCapturesComponent {
     {
       id: 0,
       name: 'Gravity',
-      description:
-        'The force that attracts a body toward the center of the earth.',
+      description: 'The force that attracts a body toward the center of the earth.',
       date: '2023-01-01',
-      link: ''
+      link: 'transcripts'
     },
     {
       id: 1,
       name: 'Friction',
-      description:
-        'The resistance that one surface or object encounters when moving over another.',
+      description: 'The resistance that one surface or object encounters when moving over another.',
       date: '2023-01-01',
-      link: ''
+      link: 'transcripts/1'
     },
     { 
       id: 2,
       name: 'General', 
       description: 'A general overview of the topic.',
       date: '2023-01-01',
-      link: ''
+      link: 'transcripts/2'
     },
   ];
 }

@@ -4,6 +4,7 @@ import { AboutComponent } from './pages/about/about.component';
 import { AccountComponent } from './pages/account/account.component';
 import { StudentCapturesComponent } from './pages/student-captures/student-captures.component';
 import { ClassStoriesComponent } from './pages/class-stories/class-stories.component';
+import { StudentTranscriptListComponent } from './pages/student-transcript-list/student-transcript-list.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent }, // Default route
@@ -11,4 +12,5 @@ export const routes: Routes = [
   { path: 'class', component: ClassStoriesComponent }, // Assuming 'class' is also handled by HomeComponent
   { path: 'about', component: AboutComponent},
   { path: 'account', component: AccountComponent},
+  { path: 'transcripts', component: StudentTranscriptListComponent},
 ];

@@ -1,0 +1,48 @@
+.transcript-list-container {
+    max-width: 800px;         /* Constrains total width for readability */
+    margin: 0 auto;           /* Centers the container horizontally */
+    padding: 20px;            /* Adds spacing around the list */
+    font-family: sans-serif;  /* Example font family */
+  }
+  
+  .topic-header {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;       /* Centers the topic name */
+  }
+  
+  .transcript-item {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;  /* Card background */
+    border-radius: 8px;
+    border: 1px solid #ddd;     /* Light border */
+    padding: 16px;              /* Inner spacing for each item */
+    margin-bottom: 20px;        /* Space between items */
+  }
+  
+  .transcript-image {
+    width: 80px;                /* Fixed thumbnail size */
+    height: 80px;
+    object-fit: cover;          /* Crops overflow for a neat appearance */
+    margin-right: 20px;
+    border-radius: 4px;
+  }
+  
+  .transcript-info {
+    flex: 1;                    /* Allows text to fill remaining space */
+  }
+  
+  .transcript-title {
+    font-size: 18px;
+    margin: 0;                  /* Remove default margin */
+    margin-bottom: 8px;         /* Gap below the title */
+  }
+  
+  .transcript-preview {
+    font-size: 14px;
+    color: #666;
+    margin: 0;                  /* Remove default margin */
+    line-height: 1.4;
+  }
+  
