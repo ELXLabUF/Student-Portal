@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { CardComponent } from '../card/card.component';
+import { CardComponent } from '../../components/card/card.component';
 
 @Component({
   selector: 'app-student-captures',

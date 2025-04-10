@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FlashcardComponent } from '../flashcard/flashcard.component';
+import { FlashcardComponent } from '../../components/flashcard/flashcard.component';
 
 @Component({
   selector: 'app-class-stories',
