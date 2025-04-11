@@ -15,6 +15,7 @@ import { CardComponent } from '../../components/card/card.component';
           [description]="capture.description"
           [date]="capture.date"
           [link]="capture.link"
+          [id]="capture.id"
         ></app-card>
       }
     </div>
@@ -27,22 +28,22 @@ export class StudentCapturesComponent {
       id: 0,
       name: 'Gravity',
       description: 'The force that attracts a body toward the center of the earth.',
-      date: '2023-01-01',
-      link: 'transcripts'
+      date: '01/01/2025 - 01/14/2025',
+      link: '/transcripts'
     },
     {
       id: 1,
       name: 'Friction',
       description: 'The resistance that one surface or object encounters when moving over another.',
-      date: '2023-01-01',
-      link: 'transcripts/1'
+      date: '02/01/2025 - 02/14/2025',
+      link: '/transcripts'
     },
     { 
       id: 2,
       name: 'General', 
       description: 'A general overview of the topic.',
-      date: '2023-01-01',
-      link: 'transcripts/2'
+      date: '03/01/2025 - 03/14/2025',
+      link: '/transcripts'
     },
   ];
 }

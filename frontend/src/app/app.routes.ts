@@ -12,5 +12,5 @@ export const routes: Routes = [
   { path: 'class', component: ClassStoriesComponent }, // Assuming 'class' is also handled by HomeComponent
   { path: 'about', component: AboutComponent},
   { path: 'account', component: AccountComponent},
-  { path: 'transcripts', component: StudentTranscriptListComponent},
+  { path: 'transcripts/:captureId', component: StudentTranscriptListComponent},
 ];
