@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
   imports: [],
   template: `
     <p>
-      about works!
+      To be added later. Same as from teacher portal.
     </p>
   `,
   styleUrl: './about.component.css'

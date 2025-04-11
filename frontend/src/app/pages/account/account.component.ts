@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
   imports: [],
   template: `
     <p>
-      account works!
+      To be added later.
     </p>
   `,
   styleUrl: './account.component.css'

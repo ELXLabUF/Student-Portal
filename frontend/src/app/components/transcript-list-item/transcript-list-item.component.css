@@ -1,0 +1,44 @@
+.transcript-item {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    border-radius: 24px;
+    border: 1px solid #ddd;
+    padding: 16px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .transcript-item:hover {
+    transform: scale(1.02);
+  }
+  
+  .transcript-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    margin-right: 20px;
+    border-radius: 4px;
+  }
+  
+  .transcript-info {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .transcript-title {
+    font-size: 18px;
+    margin: 0 0 8px 0;
+  }
+  
+  .transcript-text {
+    font-size: 16px;
+    color: #666;
+    margin: 2px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
