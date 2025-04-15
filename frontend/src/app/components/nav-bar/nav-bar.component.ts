@@ -9,6 +9,7 @@ import { RouterLink } from '@angular/router';
       <h3 class="logo"><a routerLink="">Contextualizer</a></h3>
       <nav>
         <ul class="nav-links">
+          <li><a routerLink="/login">Login</a></li>
           <li><a routerLink="/about">About</a></li>
           <li><a routerLink="/account">Account</a></li>
         </ul>

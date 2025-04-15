@@ -8,24 +8,25 @@ import { FlashcardComponent } from '../../components/flashcard/flashcard.compone
   template: `
     <h1>Class Stories</h1>
     <div class="flashcard-grid">
+      @for (card of cards; track card.cardId) {
       <app-flashcard
-        *ngFor="let card of cards"
-        [frontText]="card.frontText"
+        [frontImage]="card.frontImage"
         [backText]="card.backText"
       ></app-flashcard>
+      }
     </div>
   `,
   styleUrl: './class-stories.component.css',
 })
 export class ClassStoriesComponent {
   cards = [
-    { frontText: 'Hello 1', backText: 'World 1' },
-    { frontText: 'Hello 2', backText: 'World 2' },
-    { frontText: 'Hello 3', backText: 'World 3' },
-    { frontText: 'Hello 4', backText: 'World 4' },
-    { frontText: 'Hello 5', backText: 'World 5' },
-    { frontText: 'Hello 6', backText: 'World 6' },
-    { frontText: 'Hello 7', backText: 'World 7' },
-    { frontText: 'Hello 8', backText: 'World 8' },
+    { cardId: 0,frontImage: 'https://files09.oaiusercontent.com/file-RnstVLJp6686ERCBvSztpS?se=2025-04-11T06%3A35%3A38Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3D2aa491e1-e9e6-47c8-a08e-eebbfedaa6f8.webp&sig=hXdm8HlxbRPSkhuw1k6MYH6E%2BqIUi8BNXyD7D6F0y8o%3D', backText: 'Transcript Text' },
+    { cardId: 1,frontImage: 'assets/placeholder.png', backText: 'Transcript Text' },
+    { cardId: 2,frontImage: 'assets/placeholder.png', backText: 'Transcript Text' },
+    { cardId: 3,frontImage: 'assets/placeholder.png', backText: 'Transcript Text' },
+    { cardId: 4,frontImage: 'assets/placeholder.png', backText: 'Transcript Text' },
+    { cardId: 5,frontImage: 'assets/placeholder.png', backText: 'Transcript Text' },
+    { cardId: 6,frontImage: 'assets/placeholder.png', backText: 'Transcript Text' },
+    { cardId: 7,frontImage: 'assets/placeholder.png', backText: 'Transcript Text' },
   ];
 }

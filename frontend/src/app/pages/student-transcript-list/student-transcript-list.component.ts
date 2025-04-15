@@ -1,53 +1,3 @@
-// import { Component, Input } from '@angular/core';
-// import { CommonModule } from '@angular/common';
-
-// @Component({
-//   selector: 'app-student-transcript-list',
-//   imports: [CommonModule],
-//   template: `
-//     <div class="transcript-list-container">
-//       <!-- Topic/Capture Period Title -->
-//       <h1 class="topic-header">{{ topicName }}</h1>
-
-//       <!-- List of Transcript Items -->
-//       <div class="transcript-item" *ngFor="let transcript of transcripts">
-//         <img
-//           class="transcript-image"
-//           [src]="transcript.imageUrl"
-//           alt="Transcript Preview"
-//         />
-//         <div class="transcript-info">
-//           <h2 class="transcript-title">{{ transcript.title }}</h2>
-//           <p class="transcript-preview">{{ transcript.preview }}</p>
-//         </div>
-//       </div>
-//     </div>
-//   `,
-//   styleUrl: './student-transcript-list.component.css',
-// })
-// export class StudentTranscriptListComponent {
-//   @Input() topicName: string = 'Topic Name';
-
-
-//   transcripts = [
-//     {
-//       title: 'Transcript Title 1',
-//       preview: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-//       imageUrl: 'assets/placeholder.png'  // Replace with your image path
-//     },
-//     {
-//       title: 'Transcript Title 2',
-//       preview: 'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...',
-//       imageUrl: 'assets/placeholder.png'
-//     },
-//     {
-//       title: 'Transcript Title 3',
-//       preview: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco...',
-//       imageUrl: 'assets/placeholder.png'
-//     }
-//   ];
-
-// }
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -62,10 +12,13 @@ import { TranscriptListItemComponent } from '../../components/transcript-list-it
       <h1 class="topic-header">{{ topicName }}</h1>
 
       <!-- List of Transcript Items -->
-      <app-transcript-list-item
-        *ngFor="let transcript of transcripts"
-        [transcript]="transcript">
-      </app-transcript-list-item>
+      <div class="transcript-list">
+          
+          <app-transcript-list-item
+            *ngFor="let transcript of transcripts"
+            [transcript]="transcript">
+          </app-transcript-list-item>
+      </div>
     </div>
   `,
   styleUrls: ['./student-transcript-list.component.css'],
@@ -87,6 +40,11 @@ export class StudentTranscriptListComponent implements OnInit {
         {
           title: 'Falling Leaves: Gravity',
           text: "As I'm looking out my window I'm seeing that some of the leaves on the trees are falling because of gravity because gravity is pulling htem towards the earth so leaves are falling down and this is science because gravity is one of the forces of science and when it's falling that's gravity in action.",
+          imageUrl: 'assets/placeholder.png',
+        },
+        {
+          title: 'Edit Test',
+          text: "This is a test of the edit functionality. You can edit this text.",
           imageUrl: 'assets/placeholder.png',
         },
       ],

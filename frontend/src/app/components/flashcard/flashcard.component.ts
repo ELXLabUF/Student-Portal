@@ -10,7 +10,7 @@ import { Component, Input } from '@angular/core';
       (click)="toggleFlip()"
     >
       <div class="flashcard">
-        <div class="front">{{ frontText }}</div>
+        <div class="front"><img class="front-image" [src]="frontImage" alt="Ai-image"></div>
         <div class="back">{{ backText }}</div>
       </div>
     </div>
@@ -18,8 +18,8 @@ import { Component, Input } from '@angular/core';
   styleUrl: './flashcard.component.css',
 })
 export class FlashcardComponent {
-  @Input() frontText: string = '';
-  @Input() backText: string = 'Back';
+  @Input() frontImage: string = '';
+  @Input() backText: string = '';
   
   isFlipped: boolean = false;
 
