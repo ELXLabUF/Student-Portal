@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth-service/auth.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-login',
@@ -23,6 +24,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
+  //private auth = inject(Auth) // Firebase Auth instance if needed
   email: string = '';
   password: string = '';
   errorMessage: string = '';
@@ -34,6 +36,7 @@ export class LoginComponent {
       .login(this.email, this.password)
       .then(() => {
         this.router.navigate(['/stories']);
+        console.log('Login successful!');
       })
       .catch((error) => {
         this.errorMessage = error.message;
