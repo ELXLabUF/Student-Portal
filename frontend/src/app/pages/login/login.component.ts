@@ -1,31 +1,19 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth-service/auth.service';
+import { collection, Firestore, getDocs } from "@angular/fire/firestore";
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-login',
   imports: [FormsModule, CommonModule],
-  template: `
-    <div class="login-wrapper">
-      <h1>Login</h1>
-      <form (ngSubmit)="login()">
-        <label for="email">Email:</label>
-        <input type="text" id="email" [(ngModel)]="email" name="email" required />
-        <label for="password">Password:</label>
-        <input type="password" id="password" [(ngModel)]="password" name="password" required />
-        <button type="submit">Login</button>
-      </form>
-      <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
-    </div>
-  `,
+  templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
   //private auth = inject(Auth) // Firebase Auth instance if needed
-  email: string = '';
+  username: string = '';
   password: string = '';
   errorMessage: string = '';
 
@@ -33,7 +21,7 @@ export class LoginComponent {
 
   login() {
     this.authService
-      .login(this.email, this.password)
+      .login(this.username, this.password)
       .then(() => {
         this.router.navigate(['/stories']);
         console.log('Login successful!');

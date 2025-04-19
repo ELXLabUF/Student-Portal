@@ -15,5 +15,5 @@ export const routes: Routes = [
   { path: 'about', component: AboutComponent},
   { path: 'account', component: AccountComponent},
   { path: 'transcripts/:captureId', component: StudentTranscriptListComponent},
-  { path: '**', redirectTo: '/' }
+  { path: '**', redirectTo: '/login' }
 ];
