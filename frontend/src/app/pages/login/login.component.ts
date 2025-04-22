@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../auth-service/auth.service';
+import { AuthService } from '../../services/auth-service/auth.service';
 import { collection, Firestore, getDocs } from "@angular/fire/firestore";
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -23,7 +23,7 @@ export class LoginComponent {
     this.authService
       .login(this.username, this.password)
       .then(() => {
-        this.router.navigate(['/stories']);
+        this.router.navigate(['/home']);
         console.log('Login successful!');
       })
       .catch((error) => {

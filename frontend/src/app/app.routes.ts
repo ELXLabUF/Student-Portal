@@ -8,10 +8,11 @@ import { ClassStoriesComponent } from './pages/class-stories/class-stories.compo
 import { StudentTranscriptListComponent } from './pages/student-transcript-list/student-transcript-list.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent }, // Default route
+  { path: '', redirectTo:'/login', pathMatch:"full" }, // Default route
+  { path: 'home', component: StudentTranscriptListComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'stories', component: StudentCapturesComponent }, // Assuming 'stories' is handled by HomeComponent for now
-  { path: 'class', component: ClassStoriesComponent }, // Assuming 'class' is also handled by HomeComponent
+  { path: 'stories', component: StudentCapturesComponent },
+  { path: 'class', component: ClassStoriesComponent },
   { path: 'about', component: AboutComponent},
   { path: 'account', component: AccountComponent},
   { path: 'transcripts/:captureId', component: StudentTranscriptListComponent},

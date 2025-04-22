@@ -1,0 +1,32 @@
+<div class="transcript-item" (click)="toggleEdit()" [class.editing]="isEditing">
+  <!-- <img
+    class="transcript-image"
+    [src]="transcript.imageUrl"
+    alt="Image Preview"
+  /> -->
+  <div class="transcript-content">
+    <h2 class="transcript-title">{{ transcript.title }}</h2>
+    <!-- Display preview when NOT editing -->
+    <ng-container *ngIf="!isEditing; else editTemplate">
+      <p class="transcript-text">{{ transcript.text }}</p>
+    </ng-container>
+    <div class="transcript-details">
+      <p class="transcript-date">{{ transcript.date | date: 'short' }}</p>
+      <p class="transcript-topic">{{ transcript.title }}</p>
+      <button class="edit-icon" (click)="toggleEdit($event)">&#9998;</button>
+
+    </div>
+    <!-- Editing Template -->
+    <ng-template #editTemplate>
+      <textarea class="transcript-textarea" [(ngModel)]="editedText" rows="3">
+      </textarea>
+      <div class="edit-buttons">
+        <button class="save-btn" (click)="saveTranscript($event)">Save</button>
+        <button class="cancel-btn" (click)="cancelEditing($event)">
+          Cancel
+        </button>
+      </div>
+    </ng-template>
+  </div>
+  <!-- Edit icon displayed at the top-right corner -->
+</div>

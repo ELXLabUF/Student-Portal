@@ -31,42 +31,11 @@ import { CommonModule } from '@angular/common';
   selector: 'app-transcript-list-item',
   // Include RouterLink and FormsModule so we can use ngModel for two-way binding.
   imports: [RouterLink, FormsModule, CommonModule],
-  template: `
-    <div class="transcript-item" (click)="toggleEdit()" [class.editing]="isEditing">
-      <img
-        class="transcript-image"
-        [src]="transcript.imageUrl"
-        alt="Transcript Preview"
-      />
-      <div class="transcript-info">
-        <h2 class="transcript-title">{{ transcript.title }}</h2>
-        <!-- Display preview when NOT editing -->
-        <ng-container *ngIf="!isEditing; else editTemplate">
-          <p class="transcript-text">{{ transcript.text }}</p>
-        </ng-container>
-        <!-- Editing Template -->
-        <ng-template #editTemplate>
-          <textarea
-            class="transcript-textarea"
-            [(ngModel)]="editedText"
-            rows="3">
-          </textarea>
-          <div class="edit-buttons">
-            <button class="save-btn" (click)="saveTranscript($event)">Save</button>
-            <button class="cancel-btn" (click)="cancelEditing($event)">Cancel</button>
-          </div>
-        </ng-template>
-      </div>
-      <!-- Edit icon displayed at the top-right corner -->
-      <button class="edit-icon" (click)="toggleEdit($event)">
-        &#9998;
-      </button>
-    </div>
-  `,
+  templateUrl: './transcript-list-item.component.html',
   styleUrls: ['./transcript-list-item.component.css'],
 })
 export class TranscriptListItemComponent {
-  @Input() transcript!: { title: string; text: string; imageUrl: string };
+  @Input() transcript!: { title: string; text: string; date: string; imageUrl: string };
 
   // Controls whether we are in editing mode
   isEditing: boolean = false;
