@@ -10,7 +10,7 @@ import { Experience } from '../../experience'; // Use the Experience interface
   imports: [CommonModule, TranscriptListItemComponent],
   template: `
     <div class="transcript-list-container">
-      <h1 class="topic-header">{{ topicName }}</h1>
+      <h1 class="page-header">My Stories</h1>
       <div class="transcript-list">
           <app-transcript-list-item
             *ngFor="let transcript of transcripts"

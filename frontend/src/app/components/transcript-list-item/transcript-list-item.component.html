@@ -1,32 +1,25 @@
-<div class="transcript-item" (click)="toggleEdit()" [class.editing]="isEditing">
-  <!-- <img
-    class="transcript-image"
-    [src]="transcript.imageUrl"
-    alt="Image Preview"
-  /> -->
-  <div class="transcript-content">
-    <h2 class="transcript-title">{{ transcript.title }}</h2>
-    <!-- Display preview when NOT editing -->
-    <ng-container *ngIf="!isEditing; else editTemplate">
-      <p class="transcript-text">{{ transcript.text }}</p>
-    </ng-container>
+<div class="transcript-card" (click)="toggleExpand($event)" [class.expanded]="isExpanded">
+  <div class="card-section header">
+    <!-- Header content can go here if needed -->
+  </div>
+  <div class="card-section body">
+    <p class="transcript-text">{{ transcript.text }}</p>
     <div class="transcript-details">
       <p class="transcript-date">{{ transcript.date | date: 'short' }}</p>
       <p class="transcript-topic">{{ transcript.title }}</p>
-      <button class="edit-icon" (click)="toggleEdit($event)">&#9998;</button>
-
     </div>
-    <!-- Editing Template -->
-    <ng-template #editTemplate>
-      <textarea class="transcript-textarea" [(ngModel)]="editedText" rows="3">
-      </textarea>
-      <div class="edit-buttons">
-        <button class="save-btn" (click)="saveTranscript($event)">Save</button>
-        <button class="cancel-btn" (click)="cancelEditing($event)">
-          Cancel
-        </button>
+    <!-- This additional section is visible only when expanded -->
+    <ng-container *ngIf="isExpanded">
+      <div class="image-selection">
+        <h4>Pick an image for your story:</h4>
+        <div class="image-list">
+          <img src="https://picsum.photos/200/300" alt="Image" class="transcript-image">
+          <img src="https://picsum.photos/200/300" alt="Image" class="transcript-image">
+          <img src="https://picsum.photos/200/300" alt="Image" class="transcript-image">
+        </div>
       </div>
-    </ng-template>
+      <h4>Improved transcript text:</h4>
+      <p>{{ improvedTranscript || 'Loading improved transcript...' }}</p>
+    </ng-container>
   </div>
-  <!-- Edit icon displayed at the top-right corner -->
 </div>
