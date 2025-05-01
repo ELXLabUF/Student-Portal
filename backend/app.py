@@ -39,3 +39,24 @@ async def improve_transcript(req: TranscriptRequest):
         return {"improvedTranscript": response.output_text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+@app.post("/api/generate-images")
+async def generate_images(req: TranscriptRequest):
+    try:
+        response = client.images.generate(
+            model="dall-e-3",
+            prompt = "Generate an image based on this student's experience: " + req.transcript,
+            n = 1,
+            size = "1024x1024",
+            response_format = "url",
+        )
+        return {"imageUrl": response.data[0].url}
+        # response = client.responses.create(
+        #     model="gpt-4o",
+        #     instructions = "Give me a random image url.",
+        #     input = req.transcript,
+        # )
+        # return {"imageUrl": response.output_text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

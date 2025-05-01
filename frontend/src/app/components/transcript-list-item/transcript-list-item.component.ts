@@ -17,6 +17,7 @@ export class TranscriptListItemComponent {
   editedText: string = '';
   isExpanded: boolean = false;
   improvedTranscript: string = '';
+  imageUrl: string = '';
 
   constructor(private aiService: AiService) {}
 
@@ -46,10 +47,24 @@ export class TranscriptListItemComponent {
       event.stopPropagation();
     }
     this.isExpanded = !this.isExpanded;
+
     if (this.isExpanded && !this.improvedTranscript) {
       this.aiService.improveTranscript(this.transcript.text).subscribe({
         next: (response) => {
           this.improvedTranscript = response.improvedTranscript;
+          // Now that we have an improved transcript, call generateImage.
+          if (!this.imageUrl) {
+            this.aiService.generateImage(this.improvedTranscript).subscribe({
+              next: (imgResponse) => {
+                this.imageUrl = imgResponse.imageUrl;
+                // Optionally save the imageUrl to transcript for future reference.
+                //this.transcript.imageUrl = imgResponse.imageUrl;
+              },
+              error: (imgErr) => {
+                console.error('Error generating image', imgErr);
+              }
+            });
+          }
         },
         error: (err) => {
           console.error('Error improving transcript', err);

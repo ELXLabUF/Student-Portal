@@ -1,25 +1,29 @@
-<div class="transcript-card" (click)="toggleExpand($event)" [class.expanded]="isExpanded">
+<div
+  class="transcript-card"
+  (click)="toggleExpand($event)"
+  [class.expanded]="isExpanded"
+>
   <div class="card-section header">
     <!-- Header content can go here if needed -->
   </div>
   <div class="card-section body">
-    <p class="transcript-text">{{ transcript.text }}</p>
+    <p class="transcript-text" [class.expanded]="isExpanded">{{ transcript.text }}</p>
     <div class="transcript-details">
-      <p class="transcript-date">{{ transcript.date | date: 'short' }}</p>
+      <p class="transcript-date">{{ transcript.date | date : "short" }}</p>
       <p class="transcript-topic">{{ transcript.title }}</p>
     </div>
     <!-- This additional section is visible only when expanded -->
     <ng-container *ngIf="isExpanded">
+      <h4>Improved transcript text:</h4>
+      <p>{{ improvedTranscript || "Loading improved transcript..." }}</p>
       <div class="image-selection">
         <h4>Pick an image for your story:</h4>
         <div class="image-list">
-          <img src="https://picsum.photos/200/300" alt="Image" class="transcript-image">
-          <img src="https://picsum.photos/200/300" alt="Image" class="transcript-image">
-          <img src="https://picsum.photos/200/300" alt="Image" class="transcript-image">
+          <img [src]="imageUrl" alt="Image" class="transcript-image" />
+          <img [src]="imageUrl" alt="Image" class="transcript-image" />
+          <img [src]="imageUrl" alt="Image" class="transcript-image" />
         </div>
       </div>
-      <h4>Improved transcript text:</h4>
-      <p>{{ improvedTranscript || 'Loading improved transcript...' }}</p>
     </ng-container>
   </div>
 </div>

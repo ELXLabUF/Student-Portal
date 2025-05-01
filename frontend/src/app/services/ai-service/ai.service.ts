@@ -6,14 +6,22 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AiService {
-  private backendUrl = 'http://localhost:8000/api/improve-transcript';
+  private improveTranscriptUrl = 'http://localhost:8000/api/improve-transcript'; // Adjust this URL to your backend endpoint
+  private generateImageUrl = 'http://localhost:8000/api/generate-images'; // Adjust this URL to your backend endpoint
 
   constructor(private http: HttpClient) {}
 
   improveTranscript(transcript: string): Observable<{ improvedTranscript: string }> {
     return this.http.post<{ improvedTranscript: string }>(
-      this.backendUrl,
+      this.improveTranscriptUrl,
       { transcript: transcript }
     );
+  }
+
+  generateImage(transcript: string): Observable<{ imageUrl: string }> {
+    return this.http.post<{ imageUrl: string }>(
+      this.generateImageUrl,
+      { transcript: transcript }
+    )
   }
 }
