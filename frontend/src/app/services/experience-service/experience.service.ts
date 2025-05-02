@@ -29,7 +29,6 @@ export class ExperienceService {
 
     // Get all experiences
     getExperience(): Observable<Experience[]> {
-        console.log('Using Firestore instance in getExperience:', this.angularFireStore);
         let experienceReference = collection(
             this.angularFireStore,
             "Experiences"
