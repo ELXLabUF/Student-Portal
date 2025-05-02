@@ -4,26 +4,30 @@
   [class.expanded]="isExpanded"
 >
   <div class="card-section header">
-    <!-- Header content can go here if needed -->
+    <!-- Header content -->
   </div>
   <div class="card-section body">
     <p class="transcript-text" [class.expanded]="isExpanded">{{ transcript.text }}</p>
-    <div class="transcript-details">
-      <p class="transcript-date">{{ transcript.date | date : "short" }}</p>
-      <p class="transcript-topic">{{ transcript.title }}</p>
-    </div>
-    <!-- This additional section is visible only when expanded -->
     <ng-container *ngIf="isExpanded">
-      <h4>Improved transcript text:</h4>
-      <p>{{ improvedTranscript || "Loading improved transcript..." }}</p>
-      <div class="image-selection">
-        <h4>Pick an image for your story:</h4>
+      <h4>Improvement Prompt:</h4>
+      <p>{{ improvementPrompt || "Loading improved transcript..." }}</p>
+      <h4>Select an Image:</h4>
+      <div class="image-selection" *ngIf="imageUrls.length > 0">
         <div class="image-list">
-          <img [src]="imageUrl" alt="Image" class="transcript-image" />
-          <img [src]="imageUrl" alt="Image" class="transcript-image" />
-          <img [src]="imageUrl" alt="Image" class="transcript-image" />
+          <img *ngFor="let url of imageUrls" [src]="url" alt="Generated image" class="transcript-image" />
         </div>
       </div>
     </ng-container>
+  </div>
+  <div class="card-section footer">
+    <div class="transcript-details">
+      <p class="transcript-date">{{ transcript.date | date:"short" }}</p>
+      <p class="transcript-topic">{{ transcript.title }}</p>
+    </div>
+    <div class="transcript-icons">
+      <span class="material-icons">edit</span>
+      <span class="material-icons">image</span>
+      <span class="material-icons">send</span>
+    </div>
   </div>
 </div>

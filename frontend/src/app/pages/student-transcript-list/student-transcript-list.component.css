@@ -1,48 +1,89 @@
+.main-container {
+  display: flex;
+  justify-content: center;
+}
+
+.filter-container {
+  width: 25%;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  text-align: center;
+}
+
+.filter-container h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.25rem;
+  color: #333;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 8px;
+}
+
+.filter-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filter-controls select {
+  padding: 10px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fafafa;
+  transition: border-color 0.2s;
+}
+
+.filter-controls select:focus {
+  outline: none;
+  border-color: #007bff;
+  background: #fff;
+}
+
+.filter-controls button {
+  padding: 10px;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.filter-controls button:first-of-type {
+  background-color: #f80;
+  color: #fff;
+}
+
+.filter-controls button:first-of-type:hover {
+  background-color: #c60;
+}
+
+.filter-controls button:last-of-type {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.filter-controls button:last-of-type:hover {
+  background-color: #c6c6c6;
+}
+
 .transcript-list-container {
-    max-width: 800px;         /* Constrains total width for readability */
-    margin: 0 auto;           /* Centers the container horizontally */
-    padding: 20px;            /* Adds spacing around the list */
-    font-family: sans-serif;  /* Example font family */
-  }
-  
-  .page-header {
-    font-size: 30px;
-    margin-bottom: 20px;
-    text-align: center;       /* Centers the topic name */
-  }
-  
-  .transcript-item {
-    display: flex;
-    align-items: center;
-    background-color: #ffffff;  /* Card background */
-    border-radius: 8px;
-    border: 1px solid #ddd;     /* Light border */
-    padding: 16px;              /* Inner spacing for each item */
-    margin-bottom: 20px;        /* Space between items */
-  }
-  
-  .transcript-image {
-    width: 80px;                /* Fixed thumbnail size */
-    height: 80px;
-    object-fit: cover;          /* Crops overflow for a neat appearance */
-    margin-right: 20px;
-    border-radius: 4px;
-  }
-  
-  .transcript-info {
-    flex: 1;                    /* Allows text to fill remaining space */
-  }
-  
-  .transcript-title {
-    font-size: 18px;
-    margin: 0;                  /* Remove default margin */
-    margin-bottom: 8px;         /* Gap below the title */
-  }
-  
-  .transcript-preview {
-    font-size: 14px;
-    color: #666;
-    margin: 0;                  /* Remove default margin */
-    line-height: 1.4;
-  }
+  width: 75%;
+  padding: 24px;
+}
+
+.page-header {
+  font-size: 30px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.transcript-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
   

@@ -16,8 +16,9 @@ export class TranscriptListItemComponent {
   isEditing: boolean = false;
   editedText: string = '';
   isExpanded: boolean = false;
-  improvedTranscript: string = '';
-  imageUrl: string = '';
+  improvementPrompt: string = '';
+  // Updated to store a list of image URLs
+  imageUrls: string[] = [];
 
   constructor(private aiService: AiService) {}
 
@@ -27,7 +28,7 @@ export class TranscriptListItemComponent {
     }
     if (!this.isEditing) {
       this.editedText = this.transcript.text;
-      this.isEditing = !this.isEditing;
+      this.isEditing = true;
     }
   }
 
@@ -48,27 +49,26 @@ export class TranscriptListItemComponent {
     }
     this.isExpanded = !this.isExpanded;
 
-    if (this.isExpanded && !this.improvedTranscript) {
+    if (this.isExpanded && !this.improvementPrompt) {
       this.aiService.improveTranscript(this.transcript.text).subscribe({
         next: (response) => {
-          this.improvedTranscript = response.improvedTranscript;
-          // Now that we have an improved transcript, call generateImage.
-          if (!this.imageUrl) {
-            this.aiService.generateImage(this.improvedTranscript).subscribe({
-              next: (imgResponse) => {
-                this.imageUrl = imgResponse.imageUrl;
-                // Optionally save the imageUrl to transcript for future reference.
-                //this.transcript.imageUrl = imgResponse.imageUrl;
-              },
-              error: (imgErr) => {
-                console.error('Error generating image', imgErr);
-              }
-            });
-          }
+          this.improvementPrompt = response.improvementPrompt;
+          // Now generate images using the improved transcript.
+          // This call returns an array of image URLs.
+          this.aiService.generateImage(this.improvementPrompt).subscribe({
+            next: (imgResponse) => {
+              this.imageUrls = imgResponse.imageUrls;
+              // Optionally, save one of the selected images to the transcript.
+              // this.transcript.imageUrl = this.imageUrls[0];
+            },
+            error: (imgErr) => {
+              console.error('Error generating images', imgErr);
+            },
+          });
         },
         error: (err) => {
           console.error('Error improving transcript', err);
-        }
+        },
       });
     }
   }
