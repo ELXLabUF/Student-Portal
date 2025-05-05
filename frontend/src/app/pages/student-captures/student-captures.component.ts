@@ -5,7 +5,7 @@ import { CardComponent } from '../../components/card/card.component';
 
 @Component({
   selector: 'app-student-captures',
-  imports: [RouterLink, CardComponent, CommonModule],
+  imports: [CardComponent, CommonModule],
   template: `
     <h1>Capture Periods</h1>
     <div class="card-grid">
