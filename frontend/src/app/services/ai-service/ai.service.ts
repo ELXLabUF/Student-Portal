@@ -13,14 +13,14 @@ export class AiService {
 
   improveTranscript(transcript: string): Observable<{ improvementPrompt: string }> {
     return this.http.post<{ improvementPrompt: string }>(
-      this.backendUrl + '/improve-transcript',
+      this.backendUrl + '/api/improve-transcript',
       { transcript: transcript }
     );
   }
 
   generateImage(transcript: string): Observable<{ imageUrls: string[] }> {
     return this.http.post<{ imageUrls: string[] }>(
-      this.backendUrl + '/generate-images',
+      this.backendUrl + '/api/generate-images',
       { transcript: transcript }
     )
   }
