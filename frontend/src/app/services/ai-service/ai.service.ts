@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AiService {
-  // private improveTranscriptUrl = 'http://localhost:8000/api/improve-transcript';
-  // private generateImageUrl = 'http://localhost:8000/api/generate-images';
-  private backendUrl = 'http://localhost:8000/api';
+  private backendUrl = environment.backendUrl;
 
   constructor(private http: HttpClient) {}
 

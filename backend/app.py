@@ -14,7 +14,7 @@ client = OpenAI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200"],  # or use ["*"] to allow all origins
+    allow_origins=["http://localhost:4200", "https://vermillion-longma-130816.netlify.app"],  # or use ["*"] to allow all origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -114,3 +114,10 @@ async def generate_images(req: TranscriptRequest):
         return {"imageUrls": image_urls}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    port = int(os.environ.get("PORT", 8080))  # required for Cloud Run
+    uvicorn.run("app:app", host="0.0.0.0", port=port)
