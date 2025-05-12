@@ -3,12 +3,12 @@
   border: 2px solid #ddd;
   border-radius: 16px;
   padding: 10px;
-  cursor: pointer;
   overflow: hidden;
   transition: max-height 0.4s ease, box-shadow 0.4s ease;
   max-height: 140px;
   max-width: 800px;
   width: 800px;
+  position: relative;
 }
 
 .transcript-card:hover {
@@ -53,14 +53,18 @@
 .transcript-text {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 16px;
 }
 
+
+
 .transcript-text.expanded {
   -webkit-line-clamp: unset;
+  line-clamp: unset;
   overflow: visible;
 }
 
@@ -68,16 +72,27 @@
   display: flex;
   gap: 20px;
   font-size: 16px;
+  margin-left: 10px;
 }
 
-.transcript-date {
-  margin-left: 10px;
+.collapse-card {
+  position: absolute;
+  left: 400px;
+  color: rgb(77, 77, 77);
+}
+
+.collapse-card:hover {
+  cursor: pointer;
 }
 
 .transcript-icons {
   display: flex;
   gap: 30px;
   margin-right: 10px;
+}
+
+.transcript-icons:hover {
+  cursor: pointer;
 }
 
 .image-list {

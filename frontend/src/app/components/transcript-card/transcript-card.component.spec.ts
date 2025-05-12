@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TranscriptListItemComponent } from './transcript-list-item.component';
+import { TranscriptCardComponent } from './transcript-card.component';
 
 describe('TranscriptListItemComponent', () => {
-  let component: TranscriptListItemComponent;
-  let fixture: ComponentFixture<TranscriptListItemComponent>;
+  let component: TranscriptCardComponent;
+  let fixture: ComponentFixture<TranscriptCardComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TranscriptListItemComponent]
+      imports: [TranscriptCardComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(TranscriptListItemComponent);
+    fixture = TestBed.createComponent(TranscriptCardComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

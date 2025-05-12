@@ -13,6 +13,6 @@ import { RouterLink } from '@angular/router';
       </div>
     </main>
   `,
-  styleUrl: './home.component.css',
+  styleUrls: ['./home.component.css'],
 })
 export class HomeComponent {}

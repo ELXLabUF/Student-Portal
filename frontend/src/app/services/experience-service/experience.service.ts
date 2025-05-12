@@ -7,10 +7,13 @@ import {
     deleteDoc,
     doc,
     updateDoc,
+    query,
+    where
 } from "@angular/fire/firestore";
-import { Experience } from "../../experience";
+import { Experience, NewExperience } from "../../experience";
 import { Student } from "../../student";
 import { Observable } from "rxjs";
+import { getAuth } from "firebase/auth";
 
 @Injectable({
     providedIn: "root",
@@ -28,14 +31,21 @@ export class ExperienceService {
     }
 
     // Get all experiences
-    getExperience(): Observable<Experience[]> {
-        let experienceReference = collection(
-            this.angularFireStore,
-            "Experiences"
-        );
-        return collectionData(experienceReference, {
+    getExperience(): Observable<NewExperience[]> {
+        const auth = getAuth();
+        const user = auth.currentUser;
+        if (!user) {
+            console.error("No user is currently logged in.");
+            return new Observable<NewExperience[]>();
+        }
+        
+        const deviceId = user?.uid;
+
+        let experienceRef = collection(this.angularFireStore, "NewExperiences");
+        const experienceQuery = query(experienceRef, where('device_id', '==', deviceId));
+        return collectionData(experienceQuery, {
             idField: "id",
-        }) as Observable<Experience[]>;
+        }) as Observable<NewExperience[]>;
     }
 
     // Delete an experience

@@ -2,30 +2,32 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranscriptListItemComponent } from '../../components/transcript-list-item/transcript-list-item.component';
+import { TranscriptCardComponent } from '../../components/transcript-card/transcript-card.component';
 import { ExperienceService } from '../../services/experience-service/experience.service';
-import { Experience } from '../../experience';
+import { Experience, NewExperience } from '../../experience';
+import { AuthService } from '../../services/auth-service/auth.service';
 
 @Component({
-  selector: 'app-student-transcript-list',
+  selector: 'app-student-transcripts',
   standalone: true,
-  imports: [CommonModule, TranscriptListItemComponent, FormsModule],
+  imports: [CommonModule, TranscriptCardComponent, FormsModule],
   template: `
     <div class="main-container">
+      <h1> {{ user?.email }} </h1>
       <div class="transcript-list-container">
         <h1 class="page-header">My Stories</h1>
         <div class="transcript-list">
-          <app-transcript-list-item
+          <app-transcript-card
             *ngFor="let transcript of displayedTranscripts"
             [transcript]="transcript">
-          </app-transcript-list-item>
+          </app-transcript-card>
         </div>
       </div>
       <div class="filter-container">
         <h2>Filter</h2>
         <div class="filter-controls">
           <!-- Dropdown for Topic -->
-          <select [(ngModel)]="filterTopic">
+          <select [(ngModel)]="filterCapture">
             <option value="">All Topics</option>
             <option *ngFor="let topic of topics" [value]="topic">{{ topic }}</option>
           </select>
@@ -40,30 +42,39 @@ import { Experience } from '../../experience';
       </div>
     </div>
   `,
-  styleUrls: ['./student-transcript-list.component.css'],
+  styleUrls: ['./student-transcripts.component.css'],
 })
-export class StudentTranscriptListComponent implements OnInit {
+export class StudentTranscriptsComponent implements OnInit {
   topicName: string = 'My Stories';
-  allTranscripts: Array<{ title: string; text: string; date: string; imageUrl: string }> = [];
-  displayedTranscripts: Array<{ title: string; text: string; date: string; imageUrl: string }> = [];
+  allTranscripts: Array<{ id: string, device_id: string, capture: string; text: string; date: string; imageUrl: string }> = [];
+  displayedTranscripts: Array<{ id: string, device_id: string, capture: string; text: string; date: string; imageUrl: string }> = [];
   
   topics: string[] = [];
   dates: string[] = [];
   
-  filterTopic: string = '';
+  filterCapture: string = '';
   filterDate: string = '';
 
   constructor(
     private route: ActivatedRoute,
-    private experienceService: ExperienceService
+    private experienceService: ExperienceService,
+    private authService: AuthService
   ) {}
 
+  user: any = null;
+
   ngOnInit(): void {
-    this.experienceService.getExperience().subscribe((experiences: Experience[]) => {
+    // if (this.authService.currentUser) {
+    //   this.user = this.authService.currentUser;
+    // };
+
+    this.experienceService.getExperience().subscribe((experiences: NewExperience[]) => {
       this.allTranscripts = experiences.map(exp => ({
-        title: exp.experience_title,
-        text: exp.experience_description,
-        date: exp.date,
+        id: exp.id,
+        device_id: exp.device_id,
+        capture: exp.capture,
+        text: exp.transcript,
+        date: exp.creation_date,
         imageUrl: 'assets/placeholder.png'
       }));
       // Set displayed transcripts initially
@@ -71,7 +82,7 @@ export class StudentTranscriptListComponent implements OnInit {
 
       // Extract unique topics (using title as the topic) and dates for dropdowns.
       this.topics = Array.from(
-        new Set(this.allTranscripts.map(t => t.title))
+        new Set(this.allTranscripts.map(t => t.capture))
       );
       this.dates = Array.from(
         new Set(this.allTranscripts.map(t => t.date))
@@ -81,8 +92,8 @@ export class StudentTranscriptListComponent implements OnInit {
 
   applyFilter(): void {
     this.displayedTranscripts = this.allTranscripts.filter(item => {
-      const matchesTopic = this.filterTopic
-        ? item.title === this.filterTopic
+      const matchesTopic = this.filterCapture
+        ? item.capture === this.filterCapture
         : true;
       const matchesDate = this.filterDate
         ? item.date === this.filterDate
@@ -92,7 +103,7 @@ export class StudentTranscriptListComponent implements OnInit {
   }
 
   resetFilter(): void {
-    this.filterTopic = '';
+    this.filterCapture = '';
     this.filterDate = '';
     this.displayedTranscripts = this.allTranscripts;
   }

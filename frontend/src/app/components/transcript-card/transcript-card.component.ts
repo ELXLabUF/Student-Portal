@@ -1,22 +1,23 @@
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { AiService } from '../../services/ai-service/ai.service';
+import { getAuth } from 'firebase/auth';
 
 @Component({
-  selector: 'app-transcript-list-item',
+  selector: 'app-transcript-card',
   imports: [FormsModule, CommonModule],
-  templateUrl: './transcript-list-item.component.html',
-  styleUrls: ['./transcript-list-item.component.css'],
+  templateUrl: './transcript-card.component.html',
+  styleUrls: ['./transcript-card.component.css'],
 })
-export class TranscriptListItemComponent {
-  @Input() transcript!: { title: string; text: string; date: string; imageUrl?: string };
+export class TranscriptCardComponent {
+  @Input() transcript!: { id: string, device_id: string, capture: string; text: string; date: string; imageUrl?: string };
 
   isEditing: boolean = false;
   editedText: string = '';
   isExpanded: boolean = false;
   improvementPrompt: string = '';
-  // Updated to store a list of image URLs
   imageUrls: string[] = [];
 
   constructor(private aiService: AiService) {}
@@ -26,6 +27,17 @@ export class TranscriptListItemComponent {
       event.stopPropagation();
     }
     this.isExpanded = !this.isExpanded;
+
+    const button = document.getElementById('expand-btn');
+    
+    if (button) {
+      if (this.isExpanded) {
+        button.innerHTML = 'expand_less';
+      }
+      else {
+        button.innerHTML = 'expand_more';
+      }
+    }
 
     if (this.isExpanded && !this.improvementPrompt) {
       this.aiService.improveTranscript(this.transcript.text).subscribe({
@@ -47,5 +59,27 @@ export class TranscriptListItemComponent {
         },
       });
     }
+  }
+
+  selectedImage: string | null = null;
+  uploading: boolean = false;
+
+  storeImage(url: string) {
+    this.selectedImage = url;
+    this.uploading = true;
+
+    this.aiService.uploadImageToFirebase(url, this.transcript).subscribe({
+      next: (res) => {
+        console.log('Image uploaded:', res.firebaseUrl);
+        alert('Image saved successfully!');
+      },
+      error: (err) => {
+        console.error('Upload failed', err);
+        alert('Failed to upload image');
+      },
+      complete: () => {
+        this.uploading = false;
+      }
+    });
   }
 }

@@ -16,6 +16,6 @@ import { RouterLink } from '@angular/router';
       </nav>
     </header>
   `,
-  styleUrl: './nav-bar.component.css',
+  styleUrls: ['./nav-bar.component.css'],
 })
 export class NavBarComponent {}

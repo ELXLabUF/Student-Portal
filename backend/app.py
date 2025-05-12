@@ -4,17 +4,28 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from openai import OpenAI
 from dotenv import load_dotenv
+import requests
+import base64
 import os
+import firebase_admin
+from firebase_admin import credentials, storage
+import uuid
+
+if not firebase_admin._apps:
+    cred = credentials.Certificate("contextualizer-e57ed-firebase-adminsdk-m00y0-7e8e2e57dd.json")
+    firebase_admin.initialize_app(cred, {
+        'storageBucket': 'contextualizer-e57ed.appspot.com'
+    })
 
 load_dotenv()
 app = FastAPI()
 client = OpenAI(
-    api_key = os.getenv("OPENAI_API_KEY"),
+    api_key=os.getenv("OPENAI_API_KEY"),
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200", "https://vermillion-longma-130816.netlify.app"],  # or use ["*"] to allow all origins
+    allow_origins=["http://localhost:4200", "https://vermillion-longma-130816.netlify.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,6 +33,11 @@ app.add_middleware(
 
 class TranscriptRequest(BaseModel):
     transcript: str
+
+class UploadImageRequest(BaseModel):
+    imageUrl: str
+    transcriptId: str
+    deviceId: str
 
 @app.get("/")
 async def root():
@@ -112,12 +128,45 @@ async def generate_images(req: TranscriptRequest):
             )
             image_urls.append(response.data[0].url)
         return {"imageUrls": image_urls}
+
+        # reponse = client.images.generate(
+        #     model="gpt-image-1",
+        #     prompt=prompt,
+        #     n=3,
+        #     size="1024x1024"
+        # )
+        # image_base64 = response.data[0].b64_json
+        # image_bytes = base64.b64decode(image_base64)
+
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+
+@app.post("/api/upload-image")
+async def upload_image(data: UploadImageRequest):
+    try:
+        response = requests.get(data.imageUrl)
+        if response.status_code != 200:
+            raise HTTPException(status_code=400, detail="Failed to fetch image from source")
+        image_data = response.content
+
+        filename = f"{data.transcriptId or uuid.uuid4()}.png"
+        print("deviceId", data.deviceId)
+        print("filename", filename)
+        bucket = storage.bucket()
+        blob = bucket.blob(f"transcript-images/{data.deviceId}/{filename}")
+        blob.upload_from_string(image_data, content_type="image/png")
+        blob.make_public()
+
+        return {"firebaseUrl": blob.public_url}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 if __name__ == "__main__":
     import uvicorn
     import os
-    port = int(os.environ.get("PORT", 8080))  # required for Cloud Run
+    port = int(os.environ.get("PORT", 8080))
     uvicorn.run("app:app", host="0.0.0.0", port=port)

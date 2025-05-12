@@ -1,7 +1,8 @@
 // environment.ts
 export const environment = {
   production: false,
-  backendUrl: 'https://backend-878072080119.us-east1.run.app',
+  // backendUrl: 'https://backend-878072080119.us-east1.run.app',
+  backendUrl: 'http://127.0.0.1:8080',
   firebaseConfig: {
     apiKey: "AIzaSyABZ5BpNyQuRR56IoMpJqStsW2AjfIYEfA",
     authDomain: "contextualizer-e57ed.firebaseapp.com",
