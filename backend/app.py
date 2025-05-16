@@ -8,12 +8,11 @@ import requests
 import base64
 import os
 import firebase_admin
-from firebase_admin import credentials, storage
+from firebase_admin import storage
 import uuid
 
 if not firebase_admin._apps:
-    cred = credentials.Certificate("contextualizer-e57ed-firebase-adminsdk-m00y0-7e8e2e57dd.json")
-    firebase_admin.initialize_app(cred, {
+    firebase_admin.initialize_app(options={
         'storageBucket': 'contextualizer-e57ed.appspot.com'
     })
 
