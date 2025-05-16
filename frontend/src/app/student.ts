@@ -10,3 +10,11 @@ export interface Student {
     student_attendance: string;
     student_class_participation: string;
 }
+
+export interface NewStudent {
+    classroom: string;
+    device_id: string;
+    gender: string;
+    grade: string;
+    name: string;
+}

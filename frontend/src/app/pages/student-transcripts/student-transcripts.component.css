@@ -1,6 +1,32 @@
+body {
+  overflow: hidden;
+}
+
 .main-container {
   display: flex;
   justify-content: center;
+  overflow: hidden;
+  max-height: 100vh;
+}
+
+
+.transcript-list-container {
+  width: 75%;
+  height: 90vh;
+  overflow-y: auto
+}
+
+.page-header {
+  font-size: 30px;
+  text-align: center;
+}
+
+.transcript-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
 }
 
 .filter-container {
@@ -68,22 +94,4 @@
   background-color: #c6c6c6;
 }
 
-.transcript-list-container {
-  width: 75%;
-  padding: 24px;
-}
-
-.page-header {
-  font-size: 30px;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.transcript-list {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-}
   

@@ -17,12 +17,12 @@ export class AiService {
       { transcript });
   }
 
-  generateImage(transcript: string): Observable<{ imageUrls: string[] }> {
+  generateImages(transcript: string): Observable<{ imageUrls: string[] }> {
     return this.http.post<{ imageUrls: string[] }>(
       `${this.backendUrl}/api/generate-images`, 
       { transcript });
   }
-
+  
   uploadImageToFirebase(url: string, transcript: any): Observable<{ firebaseUrl: string }> {
     return this.http.post<{ firebaseUrl: string }>(
       `${this.backendUrl}/api/upload-image`,

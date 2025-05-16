@@ -1,4 +1,6 @@
+import { Time } from "@angular/common";
 import { Student } from "./student";
+import { Timestamp } from "firebase/firestore";
 
 export interface Experience {
     id: string;
@@ -12,9 +14,11 @@ export interface Experience {
 export interface NewExperience {
     id: string;
     capture: string;
-    creation_date: string;
+    creation_date: Timestamp;
     device_id: string;
     recording_path: string;
     show_to_teacher: boolean;
     transcript: string;
+    imageUrl: string;
+    edited: boolean;
 }

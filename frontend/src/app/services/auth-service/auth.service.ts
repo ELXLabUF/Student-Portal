@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
+import { Auth, signInWithEmailAndPassword, updatePassword, signOut } from '@angular/fire/auth';
 
 @Injectable({
   providedIn: 'root'
@@ -7,14 +7,30 @@ import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
 export class AuthService {
   constructor(private auth: Auth) {}
 
-  login(email: string, password: string) {
+  async login(email: string, password: string): Promise<any> {
     return signInWithEmailAndPassword(this.auth, email, password);
   }
 
-  // get currentUser() {
-  //   return this.auth.currentUser;
-  // }
-  
+  async logout(): Promise<any> {
+    return await signOut(this.auth);
+  }
+
+  async changePassword(newPassword: string): Promise<void> {
+    const user = this.auth.currentUser;
+
+    if (!user) {
+      throw new Error('No user is currently logged in.');
+    }
+
+    return updatePassword(user, newPassword)
+      .then(() => {
+        console.log('Password updated successfully!');
+      })
+      .catch((error) => {
+        console.error('Error updating password:', error);
+        throw error;
+      });
+  }
 }
 
 // import {Injectable } from "@angular/core";
@@ -88,7 +104,7 @@ export class AuthService {
 //     //        throw new Error("No user currently logged in.");
 //     //    }
 //     //    updatePassword(user, newPassword)
-//     //        .then(() => {
+      //     //        .then(() => {
 //     //            console.log("Password Updated");
 //     //        })
 //     //        .catch((error) => {

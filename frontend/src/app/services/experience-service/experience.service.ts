@@ -11,67 +11,44 @@ import {
     where
 } from "@angular/fire/firestore";
 import { Experience, NewExperience } from "../../experience";
-import { Student } from "../../student";
 import { Observable } from "rxjs";
-import { getAuth } from "firebase/auth";
+import { Auth, authState } from "@angular/fire/auth";
+import { switchMap, filter } from "rxjs/operators";
 
 @Injectable({
     providedIn: "root",
 })
 export class ExperienceService {
-    constructor(private angularFireStore: Firestore) {}
+    private user$: Observable<any>;
 
-    // Add a new experience
-    addExperience(experience: Experience) {
-        experience.id = doc(collection(this.angularFireStore, "id")).id;
-        return addDoc(
-            collection(this.angularFireStore, "Experiences"),
-            experience
+    constructor(private angularFireStore: Firestore, private auth: Auth) {
+        // Subscribe to the authState Observable to track the logged-in user
+        this.user$ = authState(this.auth).pipe(
+            filter(user => !!user) // Ensure the user is not null
         );
     }
 
-    // Get all experiences
-    getExperience(): Observable<NewExperience[]> {
-        const auth = getAuth();
-        const user = auth.currentUser;
-        if (!user) {
-            console.error("No user is currently logged in.");
-            return new Observable<NewExperience[]>();
-        }
-        
-        const deviceId = user?.uid;
-
-        let experienceRef = collection(this.angularFireStore, "NewExperiences");
-        const experienceQuery = query(experienceRef, where('device_id', '==', deviceId));
-        return collectionData(experienceQuery, {
-            idField: "id",
-        }) as Observable<NewExperience[]>;
+    // Get User's Experiences
+    getExperiences(): Observable<NewExperience[]> {
+        return this.user$.pipe(
+            switchMap(user => {
+                const deviceId = user.uid;
+                let experienceRef = collection(this.angularFireStore, "NewExperiences");
+                const experienceQuery = query(experienceRef, where('device_id', '==', deviceId));
+                return collectionData(experienceQuery, { idField: "id" }) as Observable<NewExperience[]>;
+            })
+        );
     }
 
-    // Delete an experience
-    deleteExperience(experience: Experience) {
-        let docRef = doc(this.angularFireStore, `Experiences/${experience.id}`);
-        return deleteDoc(docRef);
+    // Get All Experiences
+    getAllExperiences(): Observable<NewExperience[]> {
+        let experienceRef = collection(this.angularFireStore, "NewExperiences");
+        return collectionData(experienceRef, { idField: "id" }) as Observable<NewExperience[]>;
     }
 
     // Update an experience
-    updateExperience(experience: Experience, experiences: any) {
-        let docRef = doc(this.angularFireStore, `Experiences/${experience.id}`);
-        return updateDoc(docRef, experiences);
-    }
-
-    // Parse experience CSV file to get experiences
-    parseExperienceCSVContent(experience: Experience) {
-        experience.id = doc(collection(this.angularFireStore, "id")).id;
-        return addDoc(
-            collection(this.angularFireStore, "Experiences"),
-            experience
-        );
-    }
-
-    // Parse student CSV file to get experiences
-    parseStudentCSVContent(student: Student) {
-        student.id = doc(collection(this.angularFireStore, "id")).id;
-        return addDoc(collection(this.angularFireStore, "Students"), student);
+    updateExperience(experience: NewExperience, updates: any) {
+        let docRef = doc(this.angularFireStore, `NewExperiences/${experience.id}`);
+        return updateDoc(docRef, updates);
     }
 }

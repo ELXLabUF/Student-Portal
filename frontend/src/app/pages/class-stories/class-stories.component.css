@@ -1,15 +1,27 @@
 h1 {
     text-align: center;
-    margin-top: 50px;
+    margin-top: 40px;
+}
+
+.main-container {
+    height: 92vh; /* Ensure it fills the viewport */
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.grid-container {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-y: auto;
 }
 
 .flashcard-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(200px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(5, minmax(200px, 1fr));
     justify-content: center;
-    padding: 20px;
-    margin: 0 auto;
-    max-width: 90%;
-  }
-  
+    align-items: center;
+    justify-items: center;
+    gap: 10px;
+}

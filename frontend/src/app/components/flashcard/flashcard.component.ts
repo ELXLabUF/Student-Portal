@@ -10,7 +10,7 @@ import { Component, Input } from '@angular/core';
       (click)="toggleFlip()"
     >
       <div class="flashcard">
-        <div class="front"><img class="front-image" [src]="frontImage" alt="Ai-image"></div>
+        <div class="front"><img class="front-image" [src]="frontImage" alt="AI-Generated Image"></div>
         <div class="back">{{ backText }}</div>
       </div>
     </div>

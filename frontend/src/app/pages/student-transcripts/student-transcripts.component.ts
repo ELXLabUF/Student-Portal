@@ -6,6 +6,7 @@ import { TranscriptCardComponent } from '../../components/transcript-card/transc
 import { ExperienceService } from '../../services/experience-service/experience.service';
 import { Experience, NewExperience } from '../../experience';
 import { AuthService } from '../../services/auth-service/auth.service';
+import { AiService } from '../../services/ai-service/ai.service';
 
 @Component({
   selector: 'app-student-transcripts',
@@ -28,14 +29,14 @@ import { AuthService } from '../../services/auth-service/auth.service';
         <div class="filter-controls">
           <!-- Dropdown for Topic -->
           <select [(ngModel)]="filterCapture">
-            <option value="">All Topics</option>
-            <option *ngFor="let topic of topics" [value]="topic">{{ topic }}</option>
+            <option value="">All Captures</option>
+            <option *ngFor="let capture of captures" [value]="capture">{{ capture }}</option>
           </select>
           <!-- Dropdown for Date -->
-          <select [(ngModel)]="filterDate">
+          <!-- <select [(ngModel)]="filterDate">
             <option value="">All Dates</option>
             <option *ngFor="let date of dates" [value]="date">{{ date }}</option>
-          </select>
+          </select> -->
           <button (click)="applyFilter()">Filter</button>
           <button (click)="resetFilter()">Reset</button>
         </div>
@@ -46,14 +47,14 @@ import { AuthService } from '../../services/auth-service/auth.service';
 })
 export class StudentTranscriptsComponent implements OnInit {
   topicName: string = 'My Stories';
-  allTranscripts: Array<{ id: string, device_id: string, capture: string; text: string; date: string; imageUrl: string }> = [];
-  displayedTranscripts: Array<{ id: string, device_id: string, capture: string; text: string; date: string; imageUrl: string }> = [];
+  // allTranscripts: Array<{ id: string, device_id: string, capture: string; text: string; date: Date; imageUrl: string }> = [];
+  // displayedTranscripts: Array<{ id: string, device_id: string, capture: string; text: string; date: Date; imageUrl: string }> = [];
   
-  topics: string[] = [];
-  dates: string[] = [];
-  
+  allTranscripts: NewExperience[] = [];
+  displayedTranscripts: NewExperience[] = [];
+
+  captures: string[] = [];
   filterCapture: string = '';
-  filterDate: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -64,29 +65,22 @@ export class StudentTranscriptsComponent implements OnInit {
   user: any = null;
 
   ngOnInit(): void {
-    // if (this.authService.currentUser) {
-    //   this.user = this.authService.currentUser;
-    // };
-
-    this.experienceService.getExperience().subscribe((experiences: NewExperience[]) => {
+    this.experienceService.getExperiences().subscribe((experiences: NewExperience[]) => {
       this.allTranscripts = experiences.map(exp => ({
         id: exp.id,
         device_id: exp.device_id,
         capture: exp.capture,
-        text: exp.transcript,
-        date: exp.creation_date,
-        imageUrl: 'assets/placeholder.png'
-      }));
-      // Set displayed transcripts initially
+        transcript: exp.transcript,
+        creation_date: exp.creation_date,
+        recording_path: exp.recording_path,
+        show_to_teacher: exp.show_to_teacher,
+        imageUrl: exp.imageUrl,
+        edited: exp.edited,
+      }))
+      .sort((a, b) => b.creation_date.toDate().getTime() - a.creation_date.toDate().getTime());
       this.displayedTranscripts = this.allTranscripts;
 
-      // Extract unique topics (using title as the topic) and dates for dropdowns.
-      this.topics = Array.from(
-        new Set(this.allTranscripts.map(t => t.capture))
-      );
-      this.dates = Array.from(
-        new Set(this.allTranscripts.map(t => t.date))
-      );
+      this.captures = Array.from(new Set(this.allTranscripts.map(t => t.capture)));
     });
   }
 
@@ -95,16 +89,12 @@ export class StudentTranscriptsComponent implements OnInit {
       const matchesTopic = this.filterCapture
         ? item.capture === this.filterCapture
         : true;
-      const matchesDate = this.filterDate
-        ? item.date === this.filterDate
-        : true;
-      return matchesTopic && matchesDate;
+      return matchesTopic;
     });
   }
 
   resetFilter(): void {
     this.filterCapture = '';
-    this.filterDate = '';
     this.displayedTranscripts = this.allTranscripts;
   }
 }

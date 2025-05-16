@@ -1,1 +1,28 @@
-<h1>{{ user?.uid }}</h1>
+<div class="account-container">
+  <h1>User: {{ studentName }}</h1>
+
+  <!-- Buttons for Change Password and Logout -->
+  <div class="action-buttons">
+    <button (click)="togglePasswordForm()">Change Password</button>
+    <button (click)="logout()">Logout</button>
+  </div>
+
+  <!-- Change Password Form -->
+  <div class="password-change" *ngIf="showPasswordForm">
+    <h2>Change Password</h2>
+    <input
+      type="password"
+      [(ngModel)]="newPassword"
+      placeholder="Enter new password"
+    />
+    <input
+      type="password"
+      [(ngModel)]="confirmPassword"
+      placeholder="Confirm new password"
+    />
+    <div class="action-buttons">
+        <button (click)="updatePassword()">Update Password</button>
+        <button (click)="togglePasswordForm()">Cancel</button>
+    </div>
+  </div>
+</div>

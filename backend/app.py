@@ -95,7 +95,7 @@ async def improve_transcript(req: TranscriptRequest):
         """
 
         response = client.responses.create(
-            model="gpt-4o",
+            model="gpt-4.1-mini",
             instructions=instructions,
             input=req.transcript,
         )
@@ -107,6 +107,7 @@ async def improve_transcript(req: TranscriptRequest):
 @app.post("/api/generate-images")
 async def generate_images(req: TranscriptRequest):
     try:
+        # Stores the image urls to send to frontend
         image_urls = []
 
         prompt = f"""
@@ -114,7 +115,7 @@ async def generate_images(req: TranscriptRequest):
         I am an elementary-school-aged student, connecting my everyday experiences to the
         scientific concepts I am learning in school. I would like you to develop an educational
         graphic in a “Cartoon” design style based on the story I just shared with you, that tie the
-        story to the underlying scientific concept. I do not want the image to have text within itself,
+        story to the underlying scientific concept. I absolutely do not want the image to have text within itself,
         or to have an accompanying caption.
         """
 
@@ -129,12 +130,17 @@ async def generate_images(req: TranscriptRequest):
             image_urls.append(response.data[0].url)
         return {"imageUrls": image_urls}
 
-        # reponse = client.images.generate(
+        # The code below uses gpt-image-1, which can generate multiple images at once, but still takes about 1 minute. No difference with implementation above.
+                
+        # response = client.images.generate(
         #     model="gpt-image-1",
         #     prompt=prompt,
         #     n=3,
         #     size="1024x1024"
         # )
+        # print("response: " + response)
+        # print("response.data: " + response.data)
+
         # image_base64 = response.data[0].b64_json
         # image_bytes = base64.b64decode(image_base64)
 
@@ -146,22 +152,28 @@ async def generate_images(req: TranscriptRequest):
 @app.post("/api/upload-image")
 async def upload_image(data: UploadImageRequest):
     try:
+        # Fetch the image from the provided URL
         response = requests.get(data.imageUrl)
         if response.status_code != 200:
             raise HTTPException(status_code=400, detail="Failed to fetch image from source")
         image_data = response.content
 
+        # Generate a unique filename for the image
         filename = f"{data.transcriptId or uuid.uuid4()}.png"
-        print("deviceId", data.deviceId)
-        print("filename", filename)
+        print("deviceId:", data.deviceId)
+        print("filename:", filename)
+
+        # Upload the image to Firebase Storage
         bucket = storage.bucket()
         blob = bucket.blob(f"transcript-images/{data.deviceId}/{filename}")
         blob.upload_from_string(image_data, content_type="image/png")
         blob.make_public()
 
+        # Return the public URL of the uploaded image
         return {"firebaseUrl": blob.public_url}
 
     except Exception as e:
+        # Handle any exceptions and return an HTTP error
         raise HTTPException(status_code=500, detail=str(e))
 
 
