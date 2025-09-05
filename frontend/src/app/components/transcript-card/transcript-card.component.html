@@ -1,89 +1,156 @@
-<div class="transcript-card" [class.expanded]="isExpanded">
-  <div class="card-section body">
-    <!-- <p class="transcript-text" [class.expanded]="isExpanded">{{ transcript.transcript }}</p> -->
-    <!-- Display the transcript -->
-    <div *ngIf="!isEditing">
-      <p class="transcript-text" [class.expanded]="isExpanded">{{ transcript.transcript }}</p>
-    </div>
-
-    <!-- Editable text area -->
-    <div *ngIf="isEditing">
-      <textarea [(ngModel)]="editedText" rows="6"></textarea>
-      <button (click)="saveEdit()">Save</button>
-      <button (click)="cancelEdit()">Cancel</button>
-    </div>
-
-    <!-- Display the improvement prompt -->
-    <div *ngIf="isEditing && improvementPrompt">
-      <h4>Improvement Prompt:</h4>
-      <p>{{ improvementPrompt }}</p>
-    </div>
-
-    <!-- Display assigned image -->
-    <div *ngIf="isExpanded && transcript.imageUrl && !isEditing">
-      <img
-        [src]="transcript.imageUrl"
-        alt="Assigned image"
-        class="transcript-image"
-      />
-    </div>
-
-    <div *ngIf="isExpanded && transcript.imageUrl == '' && imageUrls.length > 0">
-      <h4>Select an Image:</h4>
-      <div class="image-selection" *ngIf="imageUrls.length > 0">
-        <div class="image-list">
-          <img 
-            *ngFor="let url of imageUrls" 
-            [src]="url" alt="Generated image" 
-            class="transcript-image" 
-            (click)="storeImage(url)"
-          />
+<div class="transcript">
+    <!-- Image container for generated image -->
+    <!--<div class="transcript-image-container">
+        <div *ngIf="transcript.imageUrl; else noImage">
+            <img
+                [src]="transcript.imageUrl"
+                alt="Loading Image"
+                class="transcript-image"
+            />
         </div>
-      </div>
-    </div>
+        <ng-template #noImage>
+            <div class="no-image-placeholder">No Image Selected</div>
+        </ng-template>
+    </div>-->
 
-  </div>
-  <div class="card-section footer">
-    <div class="transcript-details">
-      <p class="transcript-date">{{ transcript.creation_date.toDate() | date: 'MMM d, y' }}</p>
-      <p class="transcript-topic">{{ transcript.capture }}</p>
-    </div>
-    <div class="collapse-card" (click)="toggleExpand()">
-      <span class="material-icons">{{ isExpanded ? 'expand_less' : 'expand_more' }}</span>
-    </div>
-    <div class="transcript-icons">
-      <!-- Edit Icon -->
-      <div class="edit-btn">
-        <span
-          class="material-icons"
-          [ngStyle]="{ color: transcript.edited ? 'green' : 'inherit' }"
-          (click)="toggleEdit()"
-        >
-          edit
-        </span>
-      </div>
+    <!-- Image container for uploaded image -->
+    <!--<div class="transcript-image-container">
+        <div *ngIf="transcript.uploadedImageUrl; else noUploadedImage">
+            <img
+                [src]="transcript.uploadedImageUrl"
+                alt="Uploaded Image"
+                class="transcript-image"
+            />
+        </div>
+        <ng-template #noUploadedImage>
+            <div class="no-image-placeholder">No Image Selected</div>
+        </ng-template>
+    </div>-->
 
-      <!-- Image Icon -->
-      <div class="image-btn">
-        <span
-          class="material-icons"
-          [ngStyle]="{ color: transcript.imageUrl ? 'green' : 'inherit' }"
-          (click)="generateImages()"
-        >
-          image
-        </span>
-      </div>
+    <div class="transcript-card" [class.expanded]="isExpanded">
+        <div class="card-section body">
+            <!-- <p class="transcript-text" [class.expanded]="isExpanded">{{ transcript.transcript }}</p> -->
+            <!-- Display the transcript -->
+            <div *ngIf="!isEditing">
+                <p class="transcript-text" [class.expanded]="isExpanded">
+                    {{ transcript.transcript }}
+                </p>
+            </div>
 
-      <!-- Send to Teacher Icon -->
-      <div class="send-btn">
-        <span
-          class="material-icons"
-          [ngStyle]="{ color: transcript.show_to_teacher ? 'green' : 'inherit' }"
-          (click)="sendToTeacher()"
-        >
-          send
-        </span>
-      </div>
+            <!-- Editable text area -->
+            <div *ngIf="isEditing">
+                <textarea [(ngModel)]="editedText" rows="6"></textarea>
+                <div class="edit-buttons">
+                    <button (click)="saveEdit()">Save</button>
+                    <button (click)="cancelEdit()">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Display the improvement prompt -->
+            <div *ngIf="isEditing && improvementPrompt">
+                <h4>AI Feedback:</h4>
+                <p>{{ improvementPrompt }}</p>
+            </div>
+
+            <!-- Display assigned image -->
+            <!--<div *ngIf="isExpanded && transcript.imageUrl && !isEditing">
+                <img
+                    [src]="transcript.imageUrl"
+                    alt="Assigned image"
+                    class="transcript-image"
+                />
+            </div>-->
+
+            <!--<div
+                *ngIf="
+                    isExpanded &&
+                    transcript.imageUrl == '' &&
+                    imageUrls.length > 0
+                "
+            >
+                <h4>Select an Image:</h4>
+                <div class="image-selection" *ngIf="imageUrls.length > 0">
+                    <div class="image-list">
+                        <img
+                            *ngFor="let url of imageUrls"
+                            [src]="url"
+                            alt="Generated image"
+                            class="transcript-image"
+                            (click)="storeImage(url)"
+                        />
+                    </div>
+                </div>
+            </div>-->
+        </div>
+        <div class="card-section footer">
+            <div class="transcript-details">
+                <p class="transcript-date">
+                    {{ transcript.creation_date.toDate() | date : "MMM d, y" }}
+                </p>
+                <p class="transcript-topic">{{ transcript.capture }}</p>
+            </div>
+            <div class="collapse-card" (click)="toggleExpand()">
+                <span class="material-icons">
+                    {{ isExpanded ? "expand_less" : "expand_more" }}
+                </span>
+            </div>
+            <div class="transcript-icons">
+                <div class="edit-btn">
+                    <!-- Story Review Edit Icon -->
+                    <span
+                        class="material-icons"
+                        [ngStyle]="{
+                            color: transcript.edited ? '#90d600' : 'inherit'
+                        }"
+                        (click)="toggleEdit()"
+                    >
+                        edit
+                    </span>
+                </div>
+
+                <!-- Select Uploaded Image Icon -->
+                <!--<div class="image-btn">
+                    <span
+                        class="material-icons"
+                        [ngStyle]="{
+                            color: transcript.uploadedImageUrl
+                                ? '#90d600'
+                                : 'inherit'
+                        }"
+                        (click)="onOpenImageModal()"
+                    >
+                        image_search
+                    </span>
+                </div>-->
+
+                <!-- Generate Image Icon -->
+                <!--<div class="image-btn">
+                    <span
+                        class="material-icons"
+                        [ngStyle]="{
+                            color: transcript.imageUrl ? '#90d600' : 'inherit'
+                        }"
+                        (click)="generateImages()"
+                    >
+                        image
+                    </span>
+                </div>-->
+
+                <!-- Send to Teacher Icon -->
+                <div class="send-btn">
+                    <span
+                        class="material-icons"
+                        [ngStyle]="{
+                            color: transcript.show_to_teacher
+                                ? '#90d600'
+                                : 'inherit'
+                        }"
+                        (click)="sendToTeacher()"
+                    >
+                        send
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>

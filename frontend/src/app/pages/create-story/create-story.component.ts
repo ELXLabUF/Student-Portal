@@ -1,0 +1,333 @@
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { getAuth } from 'firebase/auth';
+import { Firestore, doc, getDoc } from '@angular/fire/firestore';
+import { Storage, ref, uploadBytes } from '@angular/fire/storage';
+import { Timestamp } from 'firebase/firestore';
+import { MatDialog } from '@angular/material/dialog';
+
+import { ExperienceService } from '../../services/experience-service/experience.service';
+import { NewExperience } from '../../experience';
+import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
+import { AlertDialogComponent } from '../../components/alert-dialog/alert-dialog.component';
+
+@Component({
+    selector: 'app-create-story',
+    imports: [FormsModule, CommonModule],
+    templateUrl: './create-story.component.html',
+    styleUrl: './create-story.component.css',
+})
+export class CreateStoryComponent implements OnInit {
+    private auth = getAuth();
+    user = this.auth.currentUser;
+
+    isRecording = false;
+    mediaRecorder!: MediaRecorder;
+    recordedChunks: BlobPart[] = [];
+
+    activeCapture = 'Default';
+    story: string = '';
+
+    constructor(
+        private firestore: Firestore,
+        private storage: Storage,
+        private experienceService: ExperienceService,
+        public dialog: MatDialog
+    ) {}
+
+    async ngOnInit() {
+        await this.loadActiveCapture();
+    }
+
+    async loadActiveCapture() {
+        if (!this.user) {
+            return;
+        }
+        try {
+            // Get classroom from NewStudents collection (document user.uid)
+            const studentDocRef = doc(
+                this.firestore,
+                'NewStudents',
+                this.user.uid
+            );
+
+            const studentSnap = await getDoc(studentDocRef);
+            if (!studentSnap.exists()) {
+                console.warn('NewStudents document not found for user');
+                return;
+            }
+
+            const classroomName = studentSnap.data()?.['classroom'];
+            if (!classroomName) {
+                console.warn('Classroom field missing');
+                return;
+            }
+
+            // Get selected_topic (active capture) from Classroom collection document (classroomName)
+            const classroomDocRef = doc(
+                this.firestore,
+                'Classroom',
+                classroomName
+            );
+
+            const classroomSnap = await getDoc(classroomDocRef);
+            if (!classroomSnap.exists()) {
+                console.warn('Classroom document not found:', classroomName);
+                return;
+            }
+
+            const selectedTopic = classroomSnap.data()?.['selected_topic'];
+            if (selectedTopic) {
+                this.activeCapture = selectedTopic;
+            }
+        } catch (error) {
+            console.error('Error loading active capture:', error);
+        }
+    }
+
+    async toggleRecording() {
+        if (this.isRecording) {
+            this.stopRecording();
+        } else {
+            await this.startRecording();
+        }
+    }
+
+    async startRecording() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            this.openAlertDialog(
+                'Error',
+                'Audio recording is not supported in this browser.'
+            );
+            return;
+        }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: true,
+            });
+            this.recordedChunks = [];
+            this.mediaRecorder = new MediaRecorder(stream);
+            this.mediaRecorder.ondataavailable = (event) => {
+                if (event.data && event.data.size > 0) {
+                    this.recordedChunks.push(event.data);
+                }
+            };
+            this.mediaRecorder.start();
+            this.isRecording = true;
+        } catch (err) {
+            console.error('Error starting recording:', err);
+            this.openAlertDialog('Error', 'Failed to start audio recording.');
+        }
+    }
+
+    async stopRecording() {
+        if (!this.mediaRecorder) return;
+
+        this.mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(this.recordedChunks, {
+                type: 'audio/mp3',
+            });
+            if (!this.user) {
+                this.openAlertDialog('Error', 'User not authenticated.');
+                this.isRecording = false;
+                return;
+            }
+
+            const deviceId = this.user.uid;
+
+            try {
+                // Upload audio file first
+                const time = new Date();
+                const pad = (n: number) => n.toString().padStart(2, '0');
+                const formattedDate =
+                    [
+                        time.getFullYear(),
+                        pad(time.getMonth() + 1),
+                        pad(time.getDate()),
+                    ].join('-') +
+                    'T' +
+                    [
+                        pad(time.getHours()),
+                        pad(time.getMinutes()),
+                        pad(time.getSeconds()),
+                    ].join('-');
+
+                const cleanCapture = this.activeCapture.replace(
+                    /[^a-zA-Z0-9\-]/g,
+                    '-'
+                );
+                const fileName = `${cleanCapture}_${formattedDate}.mp3`;
+                const filePath = `voice_recordings/${deviceId}/${fileName}`;
+
+                const storageRef = ref(this.storage, filePath);
+                await uploadBytes(storageRef, audioBlob);
+
+                const transcriptText = '';
+
+                // Create the NewExperience object with all required fields
+                const newExperience: NewExperience = {
+                    id: `${deviceId}_${formattedDate}`,
+                    capture: this.activeCapture,
+                    creation_date: Timestamp.fromDate(time),
+                    device_id: deviceId,
+                    recording_path: filePath,
+                    show_to_teacher: false,
+                    transcript: transcriptText,
+                    translation: transcriptText,
+                    original_transcript: transcriptText,
+                    imageUrl: '',
+                    uploadedImageUrl: '',
+                    edited: false,
+                };
+
+                await this.experienceService.addExperience(newExperience);
+
+                this.openAlertDialog(
+                    'Success',
+                    'Audio recording uploaded and story saved successfully.'
+                );
+            } catch (error) {
+                console.error('Error saving audio and transcript:', error);
+                this.openAlertDialog(
+                    'Failed',
+                    'Failed to upload audio and save story. Please try again.'
+                );
+            }
+            this.isRecording = false;
+        };
+        this.mediaRecorder.stop();
+        this.isRecording = false;
+    }
+
+    async uploadAudio(audioBlob: Blob) {
+        if (!this.user) {
+            this.openAlertDialog('Error', 'User not authenticated.');
+            return;
+        }
+
+        try {
+            const time = new Date();
+            const pad = (n: number) => n.toString().padStart(2, '0');
+            const formattedDate =
+                [
+                    time.getFullYear(),
+                    pad(time.getMonth() + 1),
+                    pad(time.getDate()),
+                ].join('-') +
+                'T' +
+                [
+                    pad(time.getHours()),
+                    pad(time.getMinutes()),
+                    pad(time.getSeconds()),
+                ].join('-');
+
+            // File name as: {activeCapture}_2025-04-14T13-11-58.mp3
+            const cleanCapture = this.activeCapture.replace(
+                /[^a-zA-Z0-9\-]/g,
+                '-'
+            );
+            const fileName = `${cleanCapture}_${formattedDate}.mp3`;
+            const filePath = `voice_recordings/${this.user.uid}/${fileName}`;
+
+            const storageRef = ref(this.storage, filePath);
+            await uploadBytes(storageRef, audioBlob);
+
+            this.openAlertDialog(
+                'Success: Recording Uploaded',
+                `Your audio recording was uploaded successfully as ${fileName}.`
+            );
+        } catch (error) {
+            console.error('Upload failed:', error);
+            this.openAlertDialog(
+                'Failed: Upload Failed',
+                'Failed to upload the audio. Please try again.'
+            );
+        }
+    }
+
+    confirmSendStory() {
+        if (!this.story.trim()) {
+            this.openAlertDialog(
+                'Warning',
+                'Please enter a story before sending.'
+            );
+            return;
+        }
+
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+            width: '800px',
+            data: {
+                title: 'Send Story',
+                message: 'Are you sure you want to send your story?',
+            },
+        });
+
+        dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+            if (confirmed) {
+                this.sendStory();
+            }
+        });
+    }
+
+    async sendStory() {
+        if (!this.user) {
+            this.openAlertDialog('Error', 'User not authenticated.');
+            return;
+        }
+
+        try {
+            const deviceId = this.user.uid;
+            const time = new Date();
+            const pad = (n: number) => n.toString().padStart(2, '0');
+            const formattedDate =
+                [
+                    time.getFullYear(),
+                    pad(time.getMonth() + 1),
+                    pad(time.getDate()),
+                ].join('-') +
+                'T' +
+                [
+                    pad(time.getHours()),
+                    pad(time.getMinutes()),
+                    pad(time.getSeconds()),
+                ].join('-');
+
+            const newExperience: NewExperience = {
+                id: `${deviceId}_${formattedDate}`,
+                capture: this.activeCapture,
+                creation_date: Timestamp.fromDate(time),
+                device_id: deviceId,
+                recording_path: '',
+                show_to_teacher: false,
+                transcript: this.story,
+                translation: this.story,
+                original_transcript: this.story,
+                imageUrl: '',
+                uploadedImageUrl: '',
+                edited: false,
+            };
+
+            await this.experienceService.addExperience(newExperience);
+
+            this.openAlertDialog(
+                'Success: Story Submitted',
+                'Your story was submitted successfully!'
+            );
+            this.story = '';
+        } catch (error) {
+            console.error('Submission error:', error);
+            this.openAlertDialog(
+                'Failed: Submission Failed',
+                'An error occurred while submitting your story. Please try again.'
+            );
+        }
+    }
+
+    openAlertDialog(title: string, message: string) {
+        this.dialog.open(AlertDialogComponent, {
+            width: '800px',
+            data: { title, message },
+        });
+    }
+}

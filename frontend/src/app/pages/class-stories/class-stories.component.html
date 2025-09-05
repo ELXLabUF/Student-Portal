@@ -1,0 +1,14 @@
+<div class="main-container">
+    <div class="grid-container">
+        <h1>Class Stories</h1>
+        <div class="flashcard-grid">
+            <ng-container>
+                <app-flashcard
+                    *ngFor="let experience of experiences"
+                    [frontImage]="experience.imageUrl"
+                    [backText]="experience.transcript"
+                ></app-flashcard>
+            </ng-container>
+        </div>
+    </div>
+</div>

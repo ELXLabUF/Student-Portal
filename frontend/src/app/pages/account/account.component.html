@@ -1,28 +1,29 @@
 <div class="account-container">
-  <h1>User: {{ studentName }}</h1>
+    <h1>Account Settings</h1>
+    <p><span style="font-weight: 600">Username:</span> {{ studentName }}</p>
 
-  <!-- Buttons for Change Password and Logout -->
-  <div class="action-buttons">
-    <button (click)="togglePasswordForm()">Change Password</button>
-    <button (click)="logout()">Logout</button>
-  </div>
-
-  <!-- Change Password Form -->
-  <div class="password-change" *ngIf="showPasswordForm">
-    <h2>Change Password</h2>
-    <input
-      type="password"
-      [(ngModel)]="newPassword"
-      placeholder="Enter new password"
-    />
-    <input
-      type="password"
-      [(ngModel)]="confirmPassword"
-      placeholder="Confirm new password"
-    />
+    <!-- Buttons for Change Password and Logout -->
     <div class="action-buttons">
-        <button (click)="updatePassword()">Update Password</button>
-        <button (click)="togglePasswordForm()">Cancel</button>
+        <button (click)="togglePasswordForm()">Change Password</button>
+        <!--<button (click)="logout()">Logout</button>-->
     </div>
-  </div>
+
+    <!-- Change Password Form -->
+    <div class="password-change" *ngIf="showPasswordForm">
+        <h2>Change Password</h2>
+        <input
+            type="password"
+            [(ngModel)]="newPassword"
+            placeholder="Enter new password"
+        />
+        <input
+            type="password"
+            [(ngModel)]="confirmPassword"
+            placeholder="Confirm new password"
+        />
+        <div class="action-buttons">
+            <button (click)="updatePassword()">Update Password</button>
+            <button (click)="togglePasswordForm()">Cancel</button>
+        </div>
+    </div>
 </div>

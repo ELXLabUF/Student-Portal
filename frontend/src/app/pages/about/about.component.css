@@ -9,17 +9,17 @@ body {
     align-items: center;
     justify-content: center;
     /* height: 80vh; */
-    margin-top: 30px;
+    /*margin-top: 30px;*/
 }
 
-.title-container {
-    /*border: 6px solid #ff8800;*/
+/*.title-container {
+    border: 6px solid #ff8800;
     border-radius: 20px;
-    margin-bottom: 40px;
-}
+    margin-bottom: 0px;
+}*/
 
 .title-container h1 {
-    padding: 20px 40px 5px 40px;
+    padding: 0px 40px;
     font-family: "Nova Square", sans-serif;
     color: #ff8800;
     font-size: 55px;

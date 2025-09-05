@@ -1,0 +1,19 @@
+<div class="main-container">
+    <h1>Upload Images</h1>
+    <div class="upload-images-container">
+        <input
+            class="choose-file"
+            type="text"
+            placeholder="{{ labelText }}"
+            disabled
+        />
+        <label class="file-label">
+            Browse Files...
+            <input type="file" (change)="onFileSelected($event)" />
+        </label>
+    </div>
+
+    <div class="upload-button">
+        <button (click)="onUpload()">Upload</button>
+    </div>
+</div>

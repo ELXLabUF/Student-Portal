@@ -24,7 +24,7 @@ client = OpenAI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200", "https://vermillion-longma-130816.netlify.app"],
+    allow_origins=["http://localhost:4200", "https://storyloop.netlify.app", "https://vermillion-longma-130816.netlify.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -47,50 +47,58 @@ async def root():
 async def improve_transcript(req: TranscriptRequest):
     try:
         instructions = """
-            I want you to evaluate my story based on this rubric:
+        	If the story contains any rude, offensive, or inappropriate language, 
+            do not evaluate or score it. Instead, respond with the following 
+            message and nothing else: "This story contains language that 
+            is not appropriate for this activity. Please revise your story and try again."
+
+			If the story does not contain any inappropriate language, evaluate it based on this rubric:
             Scientific Storytelling Rubric (Out of 15 Points Total)
             1. Science Concept (0–5)
-            • Is there a clear and accurate science concept present?
-            (Examples: gravity, friction, force, motion)
-            • Scoring:
-            o 0 = None
-            o 5 = Accurate and specific
+            	• Is there a clear and accurate science concept present?
+					(Examples: gravity, friction, force, motion)
+				• Scoring:
+					o 0 = None
+					o 5 = Accurate and specific
             2. Explanation Quality (0–5)
-            • How well does the student explain the concept?
-            • Is cause-and-egect reasoning used?
-            • Scoring:
-            o 0 = Unclear or incorrect
-            o 5 = Clearly explained and well-reasoned
+				• How well does the student explain the concept?
+				• Is cause-and-effect reasoning used?
+				• Scoring:
+					o 0 = Unclear or incorrect
+					o 5 = Clearly explained and well-reasoned
             3. Real-Life Connection (0–5)
-            • Is the science applied to a personal experience, observation, or experiment?
-            • Scoring:
-            o 0 = None or random
-            o 5 = Meaningful and relevant connection
+				• Is the science applied to a personal experience, observation, or experiment?
+				• Scoring:
+					o 0 = None or random
+					o 5 = Meaningful and relevant connection
+            
             Scoring Guide
-            • 13–15 points (Excellent): Demonstrates a strong understanding of the science
-            concept, explains it clearly, and connects it meaningfully to real life.
-            • 10–12 points (Good): Science idea is accurate and relevant, though explanation or
-            connection may be a little weak.
-            • 7–9 points (Fair): Science is present but vaguely explained or loosely connected to
-            the story.
-            • 4–6 points (Needs Improvement): Science is mentioned, but explanation is
-            incorrect, confusing, or too superficial.
-            • 0–3 points (Incomplete/Incorrect): No identifiable science concept, or explanation
-            is completely incorrect or off-topic.
+				• 13–15 points (Excellent): Demonstrates a strong understanding of the science
+					concept, explains it clearly, and connects it meaningfully to real life.
+				• 10–12 points (Good): Science idea is accurate and relevant, though explanation or
+					connection may be a little weak.
+				• 7–9 points (Fair): Science is present but vaguely explained or loosely connected to
+					the story.
+				• 4–6 points (Needs Improvement): Science is mentioned, but explanation is
+					incorrect, confusing, or too superficial.
+				• 0–3 points (Incomplete/Incorrect): No identifiable science concept, or explanation
+					is completely incorrect or off-topic.
+            
             I do not want you to share my evaluation with me. You are to use the scoring to create an
             “Improvement Prompt” that highlights an area where my story could be strengthened, as
             well as how I could potentially strengthen it, in an encouraging tone that fosters creative
-            thinking. The prompt should be no more than 2 sentences. No other text outside of the improvement prompt should be
-            returned.
+            thinking. The prompt should be no more than 2 sentences. No other text outside of the
+            improvement prompt should be returned.
+            
             If I ask you for another prompt, you are to provide a new, unique prompt, but only upon
             request, and you can only provide one at a time. I request another prompt for 2 reasons.
-            1. I did not like or understand the original prompt. You will know this is the case if I ask
-            for a new prompt and do not submit an updated story. In this case, you must abide
-            by your original evaluation of my story to oger another Improvement Prompt.
-            2. I have implemented your suggestion, and I want to further improve my story. You will
-            know this is the case if I submit a story with my request. In this case, you must
-            evaluate my new and improved story in order to create an Improvement Prompt
-            based on its scoring.
+            	1. I did not like or understand the original prompt. You will know this is the case if I ask
+					for a new prompt and do not submit an updated story. In this case, you must abide
+					by your original evaluation of my story to offer another Improvement Prompt.
+				2. I have implemented your suggestion, and I want to further improve my story. You will
+					know this is the case if I submit a story with my request. In this case, you must
+					evaluate my new and improved story in order to create an Improvement Prompt
+					based on its scoring.
         """
 
         response = client.responses.create(

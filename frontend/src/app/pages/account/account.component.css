@@ -1,57 +1,72 @@
 .account-container {
-  max-width: 400px;
-  margin: 50px auto;
-  text-align: center;
-  font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 6px solid #ff8800;
+    border-radius: 30px;
+    width: 600px;
+    margin: 50px auto;
 }
 
-h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
+.account-container h1 {
+    font-family: "Nova Square", sans-serif;
+    color: #ff8800;
+    font-size: 55px;
+    line-height: 60px;
+    margin: 25px auto;
+}
+
+.account-container p {
+    font-family: "Barlow", sans-serif;
+    font-size: 25px;
+    line-height: 30px;
+    margin: 10px auto;
 }
 
 .action-buttons {
-  margin-top: 20px;
+    margin: 20px auto;
 }
 
 .action-buttons button {
-  padding: 10px 20px;
-  font-size: 16px;
-  margin: 5px;
-  background-color: #f80;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+    padding: 10px 20px;
+    font-family: "Nova Square", sans-serif;
+    font-size: 25px;
+    margin: 5px;
+    background-color: #ff8800;
+    color: #ffffff;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
 }
 
 .action-buttons button:hover {
-  background-color: #c60;
-}
-
-.password-change {
-  margin-top: 20px;
+    background-color: #cc6600;
 }
 
 .password-change input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #e2dedc;
+    border: 2px solid #4f4643;
+    border-radius: 15px;
+    font-family: "Barlow", sans-serif;
+    font-size: 20px;
 }
 
 .password-change button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #f80;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+    padding: 10px 20px;
+    font-family: "Nova Square", sans-serif;
+    font-size: 25px;
+    background-color: #ff8800;
+    color: #ffffff;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
 }
 
 .password-change button:hover {
-  background-color: #cc6600;
+    background-color: #cc6600;
 }

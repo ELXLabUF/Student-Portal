@@ -1,21 +1,72 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth-service/auth.service';
+import { AlertDialogComponent } from '../alert-dialog/alert-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { first } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-nav-bar',
-  imports: [RouterLink],
-  template: `
-    <header>
-      <h3 class="logo"><a routerLink="/home">StoryLoop</a></h3>
-      <nav>
-        <ul class="nav-links">
-          <li><a routerLink="/class">Class</a></li>
-          <li><a routerLink="/about">About</a></li>
-          <li><a routerLink="/account">Account</a></li>
-        </ul>
-      </nav>
-    </header>
-  `,
-  styleUrls: ['./nav-bar.component.css'],
+    selector: 'app-nav-bar',
+    imports: [RouterLink, CommonModule],
+    templateUrl: './nav-bar.component.html',
+    styleUrls: ['./nav-bar.component.css'],
 })
-export class NavBarComponent {}
+export class NavBarComponent implements OnInit, OnDestroy {
+    isLoggedIn: boolean = false;
+    private authSubscription!: Subscription;
+
+    constructor(
+        private router: Router,
+        public authService: AuthService,
+        public dialog: MatDialog
+    ) {}
+
+    ngOnInit(): void {
+        this.authSubscription = this.authService.currentUser.subscribe(
+            (user) => {
+                this.isLoggedIn = !!user;
+            }
+        );
+    }
+
+    ngOnDestroy(): void {
+        if (this.authSubscription) {
+            this.authSubscription.unsubscribe();
+        }
+    }
+
+    onLogoClick(): void {
+        this.authService.currentUser.pipe(first()).subscribe((user) => {
+            if (user) {
+                this.router.navigate(['/home']);
+            } else {
+                this.router.navigate(['/login']);
+            }
+        });
+    }
+
+    onLogoutClick(): void {
+        this.authService
+            .logout()
+            .then(() => {
+                this.router.navigate(['/login']); // Redirect to login page
+            })
+            .catch((error) => {
+                console.error('Error logging out:', error);
+                //alert('Failed to log out. Please try again.');
+                this.openAlertDialog(
+                    'Failed: Log Out',
+                    'Failed to log out. Please try again.'
+                );
+            });
+    }
+
+    openAlertDialog(title: string, message: string): void {
+        this.dialog.open(AlertDialogComponent, {
+            width: '800px',
+            data: { title: title, message: message },
+        });
+    }
+}

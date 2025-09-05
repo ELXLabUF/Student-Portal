@@ -1,18 +1,28 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-home',
-  imports: [RouterLink],
-  template: `
-    <main class="main-container">
-      <h1 class="title">Main Menu</h1>
-      <div class="menu-buttons">
-        <button routerLink="/stories">My Stories</button>
-        <button routerLink="/class">Class Stories</button>
-      </div>
-    </main>
-  `,
-  styleUrls: ['./home.component.css'],
+    selector: 'app-home',
+    imports: [],
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.css'],
 })
-export class HomeComponent {}
+export class HomeComponent {
+    constructor(private router: Router) {}
+
+    onCreateStoryClick() {
+        this.router.navigate(['/create-story']);
+    }
+
+    onMyStoriesClick() {
+        this.router.navigate(['/stories']);
+    }
+
+    //onClassStoriesClick() {
+    //    this.router.navigate(['/class']);
+    //}
+
+    //onUploadImagesClick() {
+    //    this.router.navigate(['/upload']);
+    //}
+}

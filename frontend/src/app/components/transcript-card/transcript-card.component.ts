@@ -1,154 +1,266 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { getAuth } from 'firebase/auth';
 import { AiService } from '../../services/ai-service/ai.service';
 import { ExperienceService } from '../../services/experience-service/experience.service';
-import { Experience, NewExperience } from '../../experience';
+import { NewExperience } from '../../experience';
+import { AlertDialogComponent } from '../alert-dialog/alert-dialog.component';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { Observable } from 'rxjs';
 
 @Component({
-  selector: 'app-transcript-card',
-  imports: [FormsModule, CommonModule],
-  templateUrl: './transcript-card.component.html',
-  styleUrls: ['./transcript-card.component.css'],
+    selector: 'app-transcript-card',
+    imports: [FormsModule, CommonModule],
+    templateUrl: './transcript-card.component.html',
+    styleUrls: ['./transcript-card.component.css'],
 })
 export class TranscriptCardComponent {
-  @Input() transcript!: NewExperience;
+    private auth = getAuth();
+    user = this.auth.currentUser;
 
-  isEditing: boolean = false;
-  wasEdited: boolean = false;
-  isExpanded: boolean = false;
-  editedText: string = '';
-  improvementPrompt: string = '';
-  imageUrls: string[] = [];
-  selectedImage: string | null = null;
-  generatingImages: boolean = false;
-  uploading: boolean = false;
+    @Input() transcript!: NewExperience;
+    @Output() openImageModal = new EventEmitter<string>();
 
-  constructor(private aiService: AiService, private experienceService: ExperienceService) {}
+    isEditing: boolean = false;
+    wasEdited: boolean = false;
+    isExpanded: boolean = false;
+    editedText: string = '';
+    improvementPrompt: string = '';
+    imageUrls: string[] = [];
+    selectedImage: string | null = null;
+    generatingImages: boolean = false;
+    uploading: boolean = false;
 
-  toggleExpand(): void {
-    this.isExpanded = !this.isExpanded;
+    constructor(
+        private aiService: AiService,
+        private experienceService: ExperienceService,
+        public dialog: MatDialog
+    ) {}
 
-    // If collapsing the card, keep the edit state as is
-    if (!this.isExpanded && this.isEditing) {
-      return;
+    toggleExpand(): void {
+        this.isExpanded = !this.isExpanded;
+
+        // If collapsing the card, keep the edit state as is
+        if (!this.isExpanded && this.isEditing) {
+            return;
+        }
+
+        // If expanding the card, show the normal text if not editing
+        if (this.isExpanded && !this.isEditing) {
+            this.editedText = ''; // Reset the edited text
+        }
     }
 
-    // If expanding the card, show the normal text if not editing
-    if (this.isExpanded && !this.isEditing) {
-      this.editedText = ''; // Reset the edited text
+    toggleEdit(): void {
+        this.isEditing = !this.isEditing;
+
+        if (this.isEditing) {
+            this.isExpanded = true; // Expand the card when entering edit mode
+            this.editedText = this.transcript.transcript; // Pre-fill the text area
+
+            // Call the improveTranscript function
+            this.aiService
+                .improveTranscript(this.transcript.transcript)
+                .subscribe({
+                    next: (response) => {
+                        this.improvementPrompt = response.improvementPrompt; // Display the improvement prompt
+                    },
+                    error: (err) => {
+                        console.error('Error improving transcript:', err);
+                        //alert('Failed to generate improvement suggestions.');
+                        this.openAlertDialog(
+                            'Failed: Improvement Suggestions Not Generated',
+                            'Failed to generate improvement suggestions. Please try again.'
+                        );
+                    },
+                });
+        }
     }
-  }
 
-  toggleEdit(): void {
-    this.isEditing = !this.isEditing;
+    saveEdit(): void {
+        if (!this.editedText.trim()) {
+            //alert('Transcript cannot be empty.');
+            this.openAlertDialog(
+                'Warning: Missing Text',
+                'The story text cannot be empty. Please enter some text and try again.'
+            );
+            return;
+        }
 
-    if (this.isEditing) {
-      this.isExpanded = true; // Expand the card when entering edit mode
-      this.editedText = this.transcript.transcript; // Pre-fill the text area
+        // Update the transcript locally
+        this.transcript.transcript = this.editedText;
+        this.experienceService
+            .updateExperience(this.transcript, {
+                transcript: this.editedText,
+                translation: this.editedText,
+            })
+            .then(() => {
+                this.experienceService.updateExperience(this.transcript, {
+                    edited: true,
+                });
+                console.log('Firestore document updated successfully!');
+                //alert('Transcript saved successfully!');
+                this.openAlertDialog(
+                    'Success: Story Saved',
+                    'The story was saved successfully!'
+                );
+            })
+            .catch((err) => {
+                console.error('Failed to update Firestore document', err);
+                //alert('Failed to update Firestore document');
+                this.openAlertDialog(
+                    'Failed: Story Not Saved',
+                    'The story was not saved successfully. Please try again.'
+                );
+            });
 
-      // Call the improveTranscript function
-      this.aiService.improveTranscript(this.transcript.transcript).subscribe({
-        next: (response) => {
-          this.improvementPrompt = response.improvementPrompt; // Display the improvement prompt
-        },
-        error: (err) => {
-          console.error('Error improving transcript:', err);
-          alert('Failed to generate improvement suggestions.');
-        },
-      });
+        // Exit edit mode but keep the card expanded
+        this.isEditing = false;
+        this.wasEdited = true; // Mark as edited
     }
-  }
 
-  
-  saveEdit(): void {
-    if (!this.editedText.trim()) {
-      alert('Transcript cannot be empty.');
-      return;
+    cancelEdit(): void {
+        this.isEditing = false; // Exit edit mode
+        this.isExpanded = false;
+        this.editedText = ''; // Clear the edited text
     }
-    
-    // Update the transcript locally
-    this.transcript.transcript = this.editedText;
-    this.experienceService.updateExperience(this.transcript, { transcript: this.editedText })
-    .then(() => {
-      this.experienceService.updateExperience(this.transcript, { edited: true })
-      console.log('Firestore document updated successfully!');
-      alert('Transcript saved successfully!');
-    })
-    .catch((err) => {
-      console.error('Failed to update Firestore document', err);
-      alert('Failed to update Firestore document');
-    });
-    
-    // Exit edit mode but keep the card expanded
-    this.isEditing = false;
-    this.wasEdited = true; // Mark as edited
-  }
-  
-  cancelEdit(): void {
-    this.isEditing = false; // Exit edit mode
-    this.isExpanded = false;
-    this.editedText = ''; // Clear the edited text
-  }
 
-  sendToTeacher(): void {
-    this.transcript.show_to_teacher = true;
-    this.experienceService.updateExperience(this.transcript, { show_to_teacher: true })
-    .then(() => {
-      console.log('Firestore document updated successfully!');
-      alert('Sent to teacher successfully!');
-    })
-    .catch((err) => {
-      console.error('Failed to update Firestore document', err);
-      alert('Failed to update Firestore document');
-    });
-  }
+    sendToTeacher(): void {
+        // Check if an image was selected for this story
+        //if (this.transcript.imageUrl === '') {
+        //    //alert('Please select an image before sending to teacher.');
+        //    this.openAlertDialog(
+        //        'Warning: No Image Selected',
+        //        'Please select an image for the story before sending to teacher.'
+        //    );
+        //    return;
+        //}
 
-  generateImages(): void {
-    this.isExpanded = true; // Expand the card to show images
-    if (this.imageUrls.length > 0) {
-      console.log('Images already generated:', this.imageUrls);
-      return;
+        this.openConfirmDialog(
+            'Send Story To Teacher',
+            'Are you sure you want to send this story to your teacher?'
+        ).subscribe(async (decision: boolean) => {
+            if (decision) {
+                this.transcript.show_to_teacher = true;
+
+                this.experienceService
+                    .updateExperience(this.transcript, {
+                        show_to_teacher: true,
+                    })
+                    .then(() => {
+                        console.log('Firestore document updated successfully!');
+                        //alert('Sent to teacher successfully!');
+                        this.openAlertDialog(
+                            'Success: Story Sent To Teacher',
+                            'The story was sent to your teacher successfully!'
+                        );
+                    })
+                    .catch((err) => {
+                        console.error(
+                            'Failed to update Firestore document',
+                            err
+                        );
+                        //alert('Failed to update Firestore document');
+                        this.openAlertDialog(
+                            'Failed: Story Not Sent To Teacher',
+                            'Failed to send the story to your teacher. Please try again.'
+                        );
+                    });
+            } else {
+                return;
+            }
+        });
     }
-    this.aiService.generateImages(this.transcript.transcript).subscribe({
-      next: (response) => {
-        this.imageUrls = response.imageUrls; // Assuming the response contains an array of image URLs
-        console.log('Generated images:', this.imageUrls);
-      },
-      error: (err) => {
-        console.error('Error generating images:', err);
-        alert('Failed to generate images.');
-      },
-    });
-  }
-  
-  storeImage(url: string) {
-    this.selectedImage = url;
-    this.uploading = true;
 
-    this.aiService.uploadImageToFirebase(url, this.transcript).subscribe({
-      next: (res) => {
-        console.log('Image uploaded:', res.firebaseUrl);
-        this.transcript.imageUrl = res.firebaseUrl;
+    /*generateImages(): void {
+        this.isExpanded = true; // Expand the card to show images
+        if (this.imageUrls.length > 0) {
+            console.log('Images already generated:', this.imageUrls);
+            return;
+        }
+        this.aiService.generateImages(this.transcript.transcript).subscribe({
+            next: (response) => {
+                this.imageUrls = response.imageUrls; // Assuming the response contains an array of image URLs
+                console.log('Generated images:', this.imageUrls);
+            },
+            error: (err) => {
+                console.error('Error generating images:', err);
+                //alert('Failed to generate images.');
+                this.openAlertDialog(
+                    'Failed: Images Not Generated',
+                    'Failed to generate images for this story. Please try again.'
+                );
+            },
+        });
+    }*/
 
-        // Update the Firestore document with the new imageUrl
-        this.experienceService.updateExperience(this.transcript, { imageUrl: res.firebaseUrl })
-          .then(() => {
-            console.log('Firestore document updated successfully!');
-            alert('Image saved successfully!');
-          })
-          .catch((err) => {
-            console.error('Failed to update Firestore document', err);
-            alert('Failed to update Firestore document');
-          });
-      },
-      error: (err) => {
-        console.error('Upload failed', err);
-        alert('Failed to upload image');
-      },
-      complete: () => {
-        this.uploading = false;
-      }
-    });
-  }
+    /*storeImage(url: string) {
+        this.selectedImage = url;
+        this.uploading = true;
+
+        this.aiService.uploadImageToFirebase(url, this.transcript).subscribe({
+            next: (res) => {
+                console.log('Image uploaded:', res.firebaseUrl);
+                this.transcript.imageUrl = res.firebaseUrl;
+
+                // Update the Firestore document with the new imageUrl
+                this.experienceService
+                    .updateExperience(this.transcript, {
+                        imageUrl: res.firebaseUrl,
+                    })
+                    .then(() => {
+                        console.log('Firestore document updated successfully!');
+                        //alert('Image saved successfully!');
+                        this.openAlertDialog(
+                            'Success: Image Saved',
+                            'The image you selected was saved successfully!'
+                        );
+                    })
+                    .catch((err) => {
+                        console.error(
+                            'Failed to update Firestore document',
+                            err
+                        );
+                        //alert('Failed to update Firestore document');
+                        this.openAlertDialog(
+                            'Failed: Image Not Saved',
+                            'Failed to save the image you selected for this story. Please try again.'
+                        );
+                    });
+            },
+            error: (err) => {
+                console.error('Upload failed', err);
+                //alert('Failed to upload image');
+                this.openAlertDialog(
+                    'Failed: Image Not Updated',
+                    'Failed to updated the image for this story. Please try again.'
+                );
+            },
+            complete: () => {
+                this.uploading = false;
+            },
+        });
+    }*/
+
+    onOpenImageModal() {
+        this.openImageModal.emit(this.transcript.id);
+    }
+
+    openAlertDialog(title: string, message: string): void {
+        this.dialog.open(AlertDialogComponent, {
+            width: '800px',
+            data: { title: title, message: message },
+        });
+    }
+
+    openConfirmDialog(title: string, message: string): Observable<boolean> {
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+            width: '800px',
+            data: { title: title, message: message },
+        });
+
+        return dialogRef.afterClosed();
+    }
 }

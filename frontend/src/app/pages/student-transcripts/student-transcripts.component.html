@@ -1,0 +1,110 @@
+<div class="main-container">
+    <h1 class="page-header">My Stories</h1>
+
+    <!-- Dropdown for Topic -->
+    <div class="filter-controls">
+        <select [(ngModel)]="filterCapture" class="dropdown-select">
+            <option value="" (click)="resetFilter()">All Captures</option>
+            <option
+                *ngFor="let capture of captures"
+                [value]="capture"
+                (click)="applyFilter()"
+            >
+                {{ capture }}
+            </option>
+        </select>
+    </div>
+
+    <div class="transcript-list-container">
+        <div class="transcript-list">
+            <app-transcript-card
+                *ngFor="let transcript of displayedTranscripts"
+                [transcript]="transcript"
+                (openImageModal)="openImageModal(transcript.id)"
+            >
+            </app-transcript-card>
+        </div>
+    </div>
+
+    <!--<div class="filter-container">
+        <h2>Filter</h2>
+        <div class="filter-controls">-->
+    <!-- Dropdown for Topic -->
+    <!--<select [(ngModel)]="filterCapture" class="dropdown-select">
+                <option value="">All Captures</option>
+                <option *ngFor="let capture of captures" [value]="capture">
+                    {{ capture }}
+                </option>
+            </select>-->
+    <!-- Dropdown for Date -->
+    <!--<select [(ngModel)]="filterDate">
+                <option value="">All Dates</option>
+                <option *ngFor="let date of dates" [value]="date">
+                    {{ date }}
+                </option>
+            </select>-->
+    <!--<button (click)="applyFilter()">Filter</button>
+            <button (click)="resetFilter()">Reset</button>
+        </div>
+    </div>-->
+
+    <!--<div
+        class="modal fade"
+        [ngClass]="{ show: showModal }"
+        [style.display]="showModal ? 'block' : 'none'"
+        tabindex="-1"
+        aria-labelledby="viewUploadedImages"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1
+                        class="modal-title text-center flex-grow-1"
+                        id="viewUploadedImages"
+                    >
+                        Assign An Image
+                    </h1>
+                    <button
+                        type="button"
+                        aria-label="Close"
+                        (click)="showModal = false"
+                    >
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="overflow-y: auto; height: 75%">
+                    <ng-container
+                        *ngIf="uploadedImages.length > 0; else noImagesUploaded"
+                    >
+                        <div class="image-grid">
+                            <div *ngFor="let img of uploadedImages">
+                                <img
+                                    [src]="img.url"
+                                    [alt]="img.name"
+                                    class="user-image"
+                                    (click)="assignUploadedImage(img.url)"
+                                />
+                            </div>
+                        </div>
+                    </ng-container>
+                    <ng-template #noImagesUploaded>
+                        <p class="no-images-uploaded-text">
+                            There are no images to show. Please upload an image
+                            and try again.
+                        </p>
+                    </ng-template>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        data-bs-dismiss="modal"
+                        (click)="showModal = false"
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>-->
+</div>

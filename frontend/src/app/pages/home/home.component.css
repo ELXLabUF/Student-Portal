@@ -1,40 +1,48 @@
+html,
+body {
+    height: 100vh;
+}
+
+body {
+    font-family: "Nova Square", sans-serif;
+}
+
 .main-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    align-items: center; /* Center children horizontally */
+    justify-content: center; /* Center children vertically */
     text-align: center;
-  }
+    height: 80vh;
+}
 
-  .title {
-    font-size: 32px;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-  
-  /* Menu buttons */
-  .menu-buttons {
+.title-container h1 {
+    /*padding: 20px 45px 5px 45px;*/
+    font-family: "Nova Square", sans-serif;
+    color: #ff8800;
+    font-size: 55px;
+    line-height: 60px;
+}
+
+/* Aligning buttons in a column */
+.button-group {
     display: flex;
     flex-direction: column;
-    gap: 15px; /* Space between buttons */
-  }
-  
-  .menu-buttons button {
-    background-color: #ff8800;
-    color: white;
-    border: none;
-    padding: 30px 150px;
-    font-size: 24px;
-    cursor: pointer;
-    border-radius: 24px;
-  }
+    gap: 20px; /* Spacing between buttons, adjust as needed */
+}
 
-  .menu-buttons button:hover {
+button {
+    background-color: #ff8800;
+    color: #ffffff;
+    border: none;
+    border-radius: 20px;
+    padding: 25px 100px;
+    font-family: "Nova Square", sans-serif;
+    font-size: 40px;
+    cursor: pointer;
+}
+
+.button-group button:hover {
     transition: 0.3s ease;
     background-color: #cc6600; /* Darker shade on hover */
-  }
-
-  .menu-buttons a {
-    text-decoration: none; /* Remove underline from links */
-    color: inherit; /* Inherit color from button */
-  }
+}

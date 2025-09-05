@@ -1,51 +1,51 @@
 .flashcard-container {
-  margin:0;
-  padding:0;
-  width: 256px;
-  height: 256px;
-  cursor: pointer;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    width: 256px;
+    height: 256px;
+    cursor: pointer;
+    box-sizing: border-box;
 }
 
 .flashcard {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.5s;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
 }
 
 .flashcard-container.flipped .flashcard {
-  transform: rotateY(180deg);
+    transform: rotateY(180deg);
 }
 
 .flashcard .front,
 .flashcard .back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  background: white;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .front-image {
-  width: 100%;
-  height: 100%;
-  border-radius: 10px;
-  object-fit: cover;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    object-fit: cover;
 }
 
 .flashcard .back {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 10px; /* Add padding for the text */
-  max-width: 256px;
-  max-height: 256px;
-  transform: rotateY(180deg);
-  box-sizing: border-box; /* Ensure padding doesn't affect the size */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px; /* Add padding for the text */
+    max-width: 256px;
+    max-height: 256px;
+    transform: rotateY(180deg);
+    box-sizing: border-box; /* Ensure padding doesn't affect the size */
 }

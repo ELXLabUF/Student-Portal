@@ -1,47 +1,55 @@
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  color: white;
-}
-  
-header {
-  position: sticky; /* or fixed if you prefer */
-  top: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 20px 20px;
-  font-size: 24px;
-  background-color: #f80;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    color: #ffffff;
 }
 
-.logo a {
-  margin-right: auto;
-  text-decoration: none;
+header {
+    position: sticky; /* or fixed if you prefer */
+    top: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px 10px;
+    font-size: 24px;
+    background-color: #ff8800;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+.logo {
+    flex: 0 0 auto; /* Don't grow, don't shrink, auto basis */
+}
+
+.logo-image img {
+    max-height: 100px; /* Adjust based on your logo size */
+    width: auto;
+    max-width: 400px;
+    cursor: pointer;
 }
 
 .nav-links {
-  list-style: none;
-  display: flex;
+    list-style: none;
+    display: flex;
+    flex-direction: row;
 }
 
 .nav-links a {
-  font-weight: bold;
-  font-size: 24px;
-  text-decoration: none;
+    font-family: "Nova Square", sans-serif;
+    font-size: 30px;
+    text-decoration: none;
 }
 
 .nav-links li {
-  padding: 0px 20px;
+    padding: 0px 20px;
 }
 
 .nav-links li a {
-  transition: all 0.3s ease 0s;
+    transition: all 0.3s ease 0s;
 }
 
 .nav-links li a:hover {
-  color: #cc6600;
+    color: #cc6600;
+    cursor: pointer;
 }
