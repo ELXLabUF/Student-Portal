@@ -39,13 +39,17 @@
 
 ## Deployment
 
-- **Frontend:** Deploys on Netlify (`ng build`).
-- **Backend:** Deploy on Google Cloud Run with a Docker container.
+- **Frontend:** Deploys on Netlify.
+  - Navigate to the frontend directory using `cd frontend/`.
+  - Run the command `ng build` or `ng build --configuration production`.
+  - Navigate to the dist/frontend/browser directory inside your frontend directory.
+  - Change the `index.csr.html` file's name to `index.html`.
+  - On the Netlify dashboard, under this project's tab open the 'Deploys' section and drag-and-drop the entire browser directory.
+- **Backend:** Deploys on Google Cloud Run with a Docker container.
   - Make sure you have Docker Desktop or Docker running on your machine.
   - Update the Dockerfile if necessary.
-  - Navigate to the backend directory.
+  - Navigate to the backend directory using `cd backend/`.
   - With Docker running in the background, run this command:
-
     ```bash
     gcloud run deploy student-portal-backend \
       --source . \
@@ -54,5 +58,4 @@
       --allow-unauthenticated \
       --set-env-vars OPENAI_API_KEY=your-openai-key
     ```
-
 ---
