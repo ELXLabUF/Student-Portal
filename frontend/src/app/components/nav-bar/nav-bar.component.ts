@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth-service/auth.service';
 import { AlertDialogComponent } from '../alert-dialog/alert-dialog.component';
@@ -9,7 +9,7 @@ import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-nav-bar',
-    imports: [RouterLink, CommonModule],
+    imports: [CommonModule],
     templateUrl: './nav-bar.component.html',
     styleUrls: ['./nav-bar.component.css'],
 })
@@ -47,6 +47,14 @@ export class NavBarComponent implements OnInit, OnDestroy {
         });
     }
 
+    onAboutClick(): void {
+        this.router.navigate(['/about']);
+    }
+
+    onAccountClick(): void {
+        this.router.navigate(['/account']);
+    }
+
     onLogoutClick(): void {
         this.authService
             .logout()
@@ -55,7 +63,6 @@ export class NavBarComponent implements OnInit, OnDestroy {
             })
             .catch((error) => {
                 console.error('Error logging out:', error);
-                //alert('Failed to log out. Please try again.');
                 this.openAlertDialog(
                     'Failed: Log Out',
                     'Failed to log out. Please try again.'

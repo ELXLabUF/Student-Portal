@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { getAuth } from 'firebase/auth';
@@ -32,7 +31,6 @@ export class AccountComponent implements OnInit {
     constructor(
         private authService: AuthService,
         private angularFirestore: Firestore,
-        //private router: Router,
         public dialog: MatDialog
     ) {}
 
@@ -70,7 +68,6 @@ export class AccountComponent implements OnInit {
 
     updatePassword(): void {
         if (!this.newPassword || !this.confirmPassword) {
-            //alert('Please fill out both fields.');
             this.openAlertDialog(
                 'Warning: Incomplete Data',
                 'One or more fields are incomplete. Please fill both the fields and try again.'
@@ -79,7 +76,6 @@ export class AccountComponent implements OnInit {
         }
 
         if (this.newPassword !== this.confirmPassword) {
-            //alert('Passwords do not match.');
             this.openAlertDialog(
                 'Warning: Incorrect Data',
                 'The entered passwords do not match. Please try again.'
@@ -90,7 +86,6 @@ export class AccountComponent implements OnInit {
         this.authService
             .changePassword(this.newPassword)
             .then(() => {
-                //alert('Password updated successfully!');
                 this.openAlertDialog(
                     'Success: Password Updated',
                     'The password was updated successfully!'
@@ -99,25 +94,12 @@ export class AccountComponent implements OnInit {
             })
             .catch((error) => {
                 console.error('Error updating password:', error);
-                //alert('Failed to update password. Please try again.');
                 this.openAlertDialog(
                     'Failed: Password Not Updated',
                     'Failed to updated the password. Please try again.'
                 );
             });
     }
-
-    //logout(): void {
-    //    this.authService
-    //        .logout()
-    //        .then(() => {
-    //            this.router.navigate(['/login']); // Redirect to login page
-    //        })
-    //        .catch((error) => {
-    //            console.error('Error logging out:', error);
-    //            alert('Failed to log out. Please try again.');
-    //        });
-    //}
 
     openAlertDialog(title: string, message: string): void {
         this.dialog.open(AlertDialogComponent, {

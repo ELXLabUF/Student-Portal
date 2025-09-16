@@ -60,6 +60,9 @@ export class StudentTranscriptsComponent implements OnInit {
                         imageUrl: exp.imageUrl,
                         uploadedImageUrl: exp.uploadedImageUrl,
                         edited: exp.edited,
+                        ai_feedback: exp.ai_feedback,
+                        feedback_rating: exp.feedback_rating,
+                        previous_feedback: exp.previous_feedback,
                     }))
                     .sort(
                         (a, b) =>
@@ -167,7 +170,6 @@ export class StudentTranscriptsComponent implements OnInit {
                     })
                     .then(() => {
                         console.log('Firestore document updated successfully!');
-                        //alert('Sent to teacher successfully!');
                         this.openAlertDialog(
                             'Success: Image Assigned To Story',
                             'The image you selected was assigned to the story successfully!'
@@ -178,7 +180,6 @@ export class StudentTranscriptsComponent implements OnInit {
                             'Failed to update Firestore document',
                             err
                         );
-                        //alert('Failed to update Firestore document');
                         this.openAlertDialog(
                             'Failed: Image Not Assigned To Story',
                             'Failed to assign the image to the story. Please try again.'

@@ -1,16 +1,25 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { getAuth } from 'firebase/auth';
-import { Firestore, doc, getDoc } from '@angular/fire/firestore';
+import {
+    Firestore,
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    query,
+    where,
+} from '@angular/fire/firestore';
 import { Storage, ref, uploadBytes } from '@angular/fire/storage';
 import { Timestamp } from 'firebase/firestore';
 import { MatDialog } from '@angular/material/dialog';
-
 import { ExperienceService } from '../../services/experience-service/experience.service';
 import { NewExperience } from '../../experience';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 import { AlertDialogComponent } from '../../components/alert-dialog/alert-dialog.component';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'app-create-story',
@@ -30,6 +39,7 @@ export class CreateStoryComponent implements OnInit {
     story: string = '';
 
     constructor(
+        private router: Router,
         private firestore: Firestore,
         private storage: Storage,
         private experienceService: ExperienceService,
@@ -45,41 +55,42 @@ export class CreateStoryComponent implements OnInit {
             return;
         }
         try {
-            // Get classroom from NewStudents collection (document user.uid)
-            const studentDocRef = doc(
-                this.firestore,
-                'NewStudents',
-                this.user.uid
+            const studentsRef = collection(this.firestore, 'NewStudents');
+            const q = query(
+                studentsRef,
+                where('device_id', '==', this.user.uid)
             );
+            const querySnap = await getDocs(q);
 
-            const studentSnap = await getDoc(studentDocRef);
-            if (!studentSnap.exists()) {
-                console.warn('NewStudents document not found for user');
+            if (querySnap.empty) {
+                console.warn('No NewStudents document found for user');
                 return;
             }
 
-            const classroomName = studentSnap.data()?.['classroom'];
+            const studentSnap = querySnap.docs[0];
+            const studentData = studentSnap.data();
+
+            const classroomName = studentData['classroom'];
             if (!classroomName) {
                 console.warn('Classroom field missing');
                 return;
             }
 
-            // Get selected_topic (active capture) from Classroom collection document (classroomName)
+            // Get active capture from Classroom collection document (classroomName)
             const classroomDocRef = doc(
                 this.firestore,
                 'Classroom',
                 classroomName
             );
-
             const classroomSnap = await getDoc(classroomDocRef);
             if (!classroomSnap.exists()) {
                 console.warn('Classroom document not found:', classroomName);
                 return;
             }
 
-            const selectedTopic = classroomSnap.data()?.['selected_topic'];
-            if (selectedTopic) {
-                this.activeCapture = selectedTopic;
+            const capture = classroomSnap.data()?.['capture'];
+            if (capture) {
+                this.activeCapture = capture;
             }
         } catch (error) {
             console.error('Error loading active capture:', error);
@@ -179,6 +190,9 @@ export class CreateStoryComponent implements OnInit {
                     imageUrl: '',
                     uploadedImageUrl: '',
                     edited: false,
+                    ai_feedback: '',
+                    feedback_rating: 0,
+                    previous_feedback: [],
                 };
 
                 await this.experienceService.addExperience(newExperience);
@@ -246,31 +260,28 @@ export class CreateStoryComponent implements OnInit {
         }
     }
 
-    confirmSendStory() {
+    confirmSubmitStory() {
         if (!this.story.trim()) {
             this.openAlertDialog(
                 'Warning',
-                'Please enter a story before sending.'
+                'Please enter a story before submitting.'
             );
             return;
         }
 
-        const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-            width: '800px',
-            data: {
-                title: 'Send Story',
-                message: 'Are you sure you want to send your story?',
-            },
-        });
-
-        dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-            if (confirmed) {
-                this.sendStory();
+        this.openConfirmDialog(
+            'Submit Story',
+            'Are you sure you want to submit your story?'
+        ).subscribe(async (decision: boolean) => {
+            if (decision) {
+                this.submitStory();
+            } else {
+                return;
             }
         });
     }
 
-    async sendStory() {
+    async submitStory() {
         if (!this.user) {
             this.openAlertDialog('Error', 'User not authenticated.');
             return;
@@ -306,6 +317,9 @@ export class CreateStoryComponent implements OnInit {
                 imageUrl: '',
                 uploadedImageUrl: '',
                 edited: false,
+                ai_feedback: '',
+                feedback_rating: 0,
+                previous_feedback: [],
             };
 
             await this.experienceService.addExperience(newExperience);
@@ -324,10 +338,23 @@ export class CreateStoryComponent implements OnInit {
         }
     }
 
+    onBackClick() {
+        this.router.navigate(['/home']);
+    }
+
     openAlertDialog(title: string, message: string) {
         this.dialog.open(AlertDialogComponent, {
             width: '800px',
             data: { title, message },
         });
+    }
+
+    openConfirmDialog(title: string, message: string): Observable<boolean> {
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+            width: '800px',
+            data: { title: title, message: message },
+        });
+
+        return dialogRef.afterClosed();
     }
 }

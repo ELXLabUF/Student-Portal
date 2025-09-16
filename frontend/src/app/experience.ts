@@ -23,4 +23,7 @@ export interface NewExperience {
     uploadedImageUrl: string;
     edited: boolean;
     original_transcript?: string;
+    ai_feedback?: string | null;
+    feedback_rating?: number | null;
+    previous_feedback?: Array<{ ai_feedback: string; feedback_rating: number }>;
 }

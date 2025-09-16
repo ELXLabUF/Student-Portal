@@ -48,8 +48,40 @@
 
             <!-- Display the improvement prompt -->
             <div *ngIf="isEditing && improvementPrompt">
-                <h4>AI Feedback:</h4>
+                <h4>
+                    AI Feedback:
+
+                    <!-- Feedback refresh button -->
+                    <span
+                        class="feedback-refresh-btn"
+                        (click)="onFeedbackRefresh()"
+                        title="Refresh Feedback"
+                    >
+                        <span class="material-icons refresh-icon">
+                            autorenew
+                        </span>
+                    </span>
+                </h4>
                 <p>{{ improvementPrompt }}</p>
+
+                <!-- Feedback Rating -->
+                <div class="star-rating">
+                    <h4>Rate this feedback:</h4>
+                    <ng-container *ngFor="let starNumber of [1, 2, 3, 4, 5]">
+                        <span
+                            class="star"
+                            [class.filled]="feedbackRatingValue >= starNumber"
+                            [class.readonly]="hasRated"
+                            (mouseover)="!hasRated && onStarHover(starNumber)"
+                            (mouseleave)="!hasRated && onStarHover(null)"
+                            (click)="!hasRated && onStarClick(starNumber)"
+                        >
+                            <i class="material-icons">
+                                {{ feedbackStarIcon(starNumber) }}
+                            </i>
+                        </span>
+                    </ng-container>
+                </div>
             </div>
 
             <!-- Display assigned image -->

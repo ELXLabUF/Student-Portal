@@ -1,7 +1,15 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnChanges,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { getAuth } from 'firebase/auth';
+import { doc, Firestore, getDoc } from '@angular/fire/firestore';
 import { AiService } from '../../services/ai-service/ai.service';
 import { ExperienceService } from '../../services/experience-service/experience.service';
 import { NewExperience } from '../../experience';
@@ -16,7 +24,7 @@ import { Observable } from 'rxjs';
     templateUrl: './transcript-card.component.html',
     styleUrls: ['./transcript-card.component.css'],
 })
-export class TranscriptCardComponent {
+export class TranscriptCardComponent implements OnChanges {
     private auth = getAuth();
     user = this.auth.currentUser;
 
@@ -33,11 +41,24 @@ export class TranscriptCardComponent {
     generatingImages: boolean = false;
     uploading: boolean = false;
 
+    originalTranscriptText: string = '';
+    feedbackRatingValue: number = 0;
+    hoverRatingValue: number | null = null;
+    hasRated: boolean = false;
+
     constructor(
+        private angularFireStore: Firestore,
         private aiService: AiService,
         private experienceService: ExperienceService,
         public dialog: MatDialog
     ) {}
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['transcript'] && this.transcript) {
+            this.feedbackRatingValue = this.transcript.feedback_rating || 0;
+            this.hasRated = this.feedbackRatingValue > 0;
+        }
+    }
 
     toggleExpand(): void {
         this.isExpanded = !this.isExpanded;
@@ -53,35 +74,51 @@ export class TranscriptCardComponent {
         }
     }
 
-    toggleEdit(): void {
+    async toggleEdit(): Promise<void> {
         this.isEditing = !this.isEditing;
 
         if (this.isEditing) {
             this.isExpanded = true; // Expand the card when entering edit mode
             this.editedText = this.transcript.transcript; // Pre-fill the text area
+            this.originalTranscriptText = this.transcript.transcript;
 
             // Call the improveTranscript function
-            this.aiService
-                .improveTranscript(this.transcript.transcript)
-                .subscribe({
-                    next: (response) => {
-                        this.improvementPrompt = response.improvementPrompt; // Display the improvement prompt
-                    },
-                    error: (err) => {
-                        console.error('Error improving transcript:', err);
-                        //alert('Failed to generate improvement suggestions.');
-                        this.openAlertDialog(
-                            'Failed: Improvement Suggestions Not Generated',
-                            'Failed to generate improvement suggestions. Please try again.'
-                        );
-                    },
-                });
+            if (this.transcript.ai_feedback) {
+                this.improvementPrompt = this.transcript.ai_feedback;
+                this.hasRated = !!this.transcript.feedback_rating;
+            } else {
+                this.aiService
+                    .improveTranscript(this.transcript.transcript)
+                    .subscribe({
+                        next: async (response) => {
+                            this.improvementPrompt = response.improvementPrompt; // Display the improvement prompt
+                            await this.experienceService
+                                .updateExperience(this.transcript, {
+                                    ai_feedback: response.improvementPrompt,
+                                })
+                                .then(() => {
+                                    this.transcript.ai_feedback =
+                                        response.improvementPrompt;
+                                    this.hasRated = false;
+                                });
+                        },
+                        error: (err) => {
+                            console.error('Error improving transcript:', err);
+                            //alert('Failed to generate improvement suggestions.');
+                            this.openAlertDialog(
+                                'Failed: Improvement Suggestions Not Generated',
+                                'Failed to generate improvement suggestions. Please try again.'
+                            );
+                        },
+                    });
+            }
+        } else {
+            this.isExpanded = false;
         }
     }
 
-    saveEdit(): void {
+    async saveEdit(): Promise<void> {
         if (!this.editedText.trim()) {
-            //alert('Transcript cannot be empty.');
             this.openAlertDialog(
                 'Warning: Missing Text',
                 'The story text cannot be empty. Please enter some text and try again.'
@@ -89,36 +126,82 @@ export class TranscriptCardComponent {
             return;
         }
 
-        // Update the transcript locally
-        this.transcript.transcript = this.editedText;
-        this.experienceService
-            .updateExperience(this.transcript, {
+        const hasTextChanged = this.editedText !== this.originalTranscriptText;
+
+        const experienceDocRef = doc(
+            this.angularFireStore,
+            `NewExperiences/${this.transcript.id}`
+        );
+
+        try {
+            const docSnap = await getDoc(experienceDocRef);
+
+            let originalTranscriptNeedsSet = false;
+            if (docSnap.exists()) {
+                const originalTranscriptInDb =
+                    docSnap.data()?.['original_transcript'];
+                if (!originalTranscriptInDb || originalTranscriptInDb === '') {
+                    originalTranscriptNeedsSet = true;
+                }
+            }
+
+            const updates: any = {
                 transcript: this.editedText,
                 translation: this.editedText,
-            })
-            .then(() => {
-                this.experienceService.updateExperience(this.transcript, {
-                    edited: true,
-                });
-                console.log('Firestore document updated successfully!');
-                //alert('Transcript saved successfully!');
-                this.openAlertDialog(
-                    'Success: Story Saved',
-                    'The story was saved successfully!'
-                );
-            })
-            .catch((err) => {
-                console.error('Failed to update Firestore document', err);
-                //alert('Failed to update Firestore document');
-                this.openAlertDialog(
-                    'Failed: Story Not Saved',
-                    'The story was not saved successfully. Please try again.'
-                );
-            });
+                edited: true,
+            };
 
-        // Exit edit mode but keep the card expanded
-        this.isEditing = false;
-        this.wasEdited = true; // Mark as edited
+            if (originalTranscriptNeedsSet) {
+                updates.original_transcript =
+                    this.transcript.translation || this.editedText;
+            }
+
+            if (hasTextChanged && this.transcript.ai_feedback) {
+                let prevArray = this.transcript.previous_feedback || [];
+
+                prevArray.push({
+                    ai_feedback: this.transcript.ai_feedback,
+                    feedback_rating: this.transcript.feedback_rating ?? 0,
+                });
+
+                // Save to Firestore without generating new feedback now
+                updates.previous_feedback = prevArray;
+                updates.feedback_rating = null;
+                updates.ai_feedback = null;
+            }
+
+            await this.experienceService.updateExperience(
+                this.transcript,
+                updates
+            );
+
+            Object.assign(this.transcript, updates);
+            this.improvementPrompt = hasTextChanged
+                ? ''
+                : updates.ai_feedback || this.improvementPrompt;
+            this.hasRated = false;
+
+            this.originalTranscriptText =
+                this.transcript.original_transcript ||
+                this.originalTranscriptText;
+            this.originalTranscriptText = this.editedText;
+
+            this.editedText = '';
+            this.isEditing = false;
+            this.wasEdited = true;
+            this.isExpanded = true;
+
+            this.openAlertDialog(
+                'Success: Story Saved',
+                'The story was saved successfully!'
+            );
+        } catch (err) {
+            console.error('Failed to update Firestore document', err);
+            this.openAlertDialog(
+                'Failed: Story Not Saved',
+                'The story was not saved successfully. Please try again.'
+            );
+        }
     }
 
     cancelEdit(): void {
@@ -138,6 +221,14 @@ export class TranscriptCardComponent {
         //    return;
         //}
 
+        if (this.transcript.show_to_teacher) {
+            this.openAlertDialog(
+                'Info: Story Already Sent',
+                'This story has already been sent to your teacher.'
+            );
+            return;
+        }
+
         this.openConfirmDialog(
             'Send Story To Teacher',
             'Are you sure you want to send this story to your teacher?'
@@ -151,7 +242,6 @@ export class TranscriptCardComponent {
                     })
                     .then(() => {
                         console.log('Firestore document updated successfully!');
-                        //alert('Sent to teacher successfully!');
                         this.openAlertDialog(
                             'Success: Story Sent To Teacher',
                             'The story was sent to your teacher successfully!'
@@ -162,12 +252,88 @@ export class TranscriptCardComponent {
                             'Failed to update Firestore document',
                             err
                         );
-                        //alert('Failed to update Firestore document');
                         this.openAlertDialog(
                             'Failed: Story Not Sent To Teacher',
                             'Failed to send the story to your teacher. Please try again.'
                         );
                     });
+            } else {
+                return;
+            }
+        });
+    }
+
+    async onFeedbackRefresh(): Promise<void> {
+        // Store current prompt and its rating as a previous feedback
+        let prevArray = this.transcript.previous_feedback || [];
+        if (this.transcript.ai_feedback) {
+            prevArray.push({
+                ai_feedback: this.transcript.ai_feedback,
+                feedback_rating: this.transcript.feedback_rating ?? 0,
+            });
+        }
+        // Reset feedback and rating fields in Firestore
+        await this.experienceService.updateExperience(this.transcript, {
+            previous_feedback: prevArray,
+            ai_feedback: null,
+            feedback_rating: null,
+        });
+
+        // Call backend for new feedback
+        this.aiService.improveTranscript(this.transcript.transcript).subscribe({
+            next: async (response) => {
+                this.improvementPrompt = response.improvementPrompt;
+                await this.experienceService.updateExperience(this.transcript, {
+                    ai_feedback: response.improvementPrompt,
+                    feedback_rating: null,
+                });
+                this.transcript.ai_feedback = response.improvementPrompt;
+                this.transcript.feedback_rating = null;
+                this.hasRated = false;
+            },
+            error: (err) => {
+                this.openAlertDialog(
+                    'Failed: Feedback Not Refreshed',
+                    'Failed to get new feedback from backend. Please try again.'
+                );
+            },
+        });
+    }
+
+    feedbackStarIcon(starNumber: number): string {
+        const rating =
+            this.hoverRatingValue !== null
+                ? this.hoverRatingValue
+                : this.feedbackRatingValue;
+        return rating >= starNumber ? 'star' : 'star_border';
+    }
+
+    onStarHover(index: number | null) {
+        if (index === null) {
+            this.hoverRatingValue = null;
+        } else {
+            this.hoverRatingValue = index;
+        }
+    }
+
+    onStarClick(index: number) {
+        if (this.hasRated) return;
+
+        const rating = index;
+
+        this.openConfirmDialog(
+            'Rate Feedback',
+            `Are you sure you want to rate this feedback as ${rating} star${
+                rating > 1 ? 's' : ''
+            }?`
+        ).subscribe(async (decision: boolean) => {
+            if (decision) {
+                this.hasRated = true;
+                this.feedbackRatingValue = rating;
+                await this.experienceService.updateExperience(this.transcript, {
+                    feedback_rating: rating,
+                });
+                this.transcript.feedback_rating = rating;
             } else {
                 return;
             }
