@@ -1,4 +1,4 @@
-# Student Portal
+# StoryLoop
 
 ## How the Backend Works
 
@@ -26,37 +26,45 @@
 
 **Backend:**
 
-1. Install Python dependencies:`pip install -r requirements.txt`
-2. Set up environment variables in `.env` for OpenAI and add the Firebase config.json file.
+1. Install Python dependencies:
+   `pip install -r requirements.txt`
+2. Set up environment variables in `.env` for OpenAI and add the Firebase `config.json` file.
 3. Start the server:
    `uvicorn app:app --reload --port 8080`
 
 **Frontend:**
 
-1. Install dependencies:`cd frontend && npm install`
+1. Install dependencies:
+   `cd frontend && npm install`
 2. Start the dev server:
    `ng serve`
 
 ## Deployment
 
--   **Frontend:** Deploys on Netlify.
-    -   Navigate to the frontend directory using `cd frontend/`.
-    -   Run the command `ng build` or `ng build --configuration production`.
-    -   Navigate to the dist/frontend/browser directory inside your frontend directory.
-    -   Change the `index.csr.html` file's name to `index.html`.
-    -   On the Netlify dashboard, under this project's tab open the 'Deploys' section and drag-and-drop the entire browser directory.
--   **Backend:** Deploys on Google Cloud Run with a Docker container.
-    -   Make sure you have Docker Desktop or Docker running on your machine.
-    -   Update the Dockerfile if necessary.
-    -   Navigate to the backend directory using `cd backend/`.
-    -   With Docker running in the background, run this command:
-        ```bash
-        gcloud run deploy student-portal-backend \
-          --source . \
-          --platform managed \
-          --region us-east1 \
-          --allow-unauthenticated \
-          --set-env-vars OPENAI_API_KEY=your-openai-key
-        ```
+**Frontend:** Deploys on Netlify at [https://storyloop.netlify.app/login](https://storyloop.netlify.app/login).
+
+-   Navigate to the frontend directory using the `cd frontend/` command.
+-   Run the command `ng build` or `ng build --configuration production`.
+-   Navigate to the dist/frontend/browser directory inside your frontend directory.
+-   Change the `index.csr.html` file's name to `index.html`.
+-   On the Netlify dashboard, under this project's tab open the 'Deploys' section and drag-and-drop the entire browser directory.
+
+**Backend:** Deploys on Google Cloud Run with a Docker container.
+
+-   Download and install the Google Cloud SDK.
+-   Use the lab's Google account to login when prompted while running the installer.
+-   Make sure you have Docker Desktop or Docker running on your machine.
+-   Update the Dockerfile, if necessary.
+-   Navigate to the backend directory using the `cd backend/` command.
+-   With Docker running in the background, run this command:
+
+    ```
+    gcloud run deploy student-portal-backend \
+      --source . \
+      --platform managed \
+      --region us-east1 \
+      --allow-unauthenticated \
+      --set-env-vars OPENAI_API_KEY=your-openai-key
+    ```
 
 ---

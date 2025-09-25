@@ -3,14 +3,14 @@
 
     <!-- Dropdown for Topic -->
     <div class="filter-controls">
-        <select [(ngModel)]="filterCapture" class="dropdown-select">
-            <option value="" (click)="resetFilter()">All Captures</option>
+        <select [(ngModel)]="filterTopic" class="dropdown-select">
+            <option value="" (click)="resetFilter()">All Topics</option>
             <option
-                *ngFor="let capture of captures"
-                [value]="capture"
+                *ngFor="let topic of topics"
+                [value]="topic"
                 (click)="applyFilter()"
             >
-                {{ capture }}
+                {{ topic }}
             </option>
         </select>
     </div>
@@ -20,7 +20,6 @@
             <app-transcript-card
                 *ngFor="let transcript of displayedTranscripts"
                 [transcript]="transcript"
-                (openImageModal)="openImageModal(transcript.id)"
             >
             </app-transcript-card>
         </div>

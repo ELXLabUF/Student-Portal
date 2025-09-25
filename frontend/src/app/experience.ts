@@ -13,6 +13,7 @@ import { Timestamp } from 'firebase/firestore';
 export interface NewExperience {
     id: string;
     capture: string;
+    topic: string;
     creation_date: Timestamp;
     device_id: string;
     recording_path: string;
@@ -25,5 +26,9 @@ export interface NewExperience {
     original_transcript?: string;
     ai_feedback?: string | null;
     feedback_rating?: number | null;
-    previous_feedback?: Array<{ ai_feedback: string; feedback_rating: number }>;
+    previous_feedback?: Array<{
+        ai_feedback: string;
+        feedback_rating: number;
+        feedback_utilization_rating: number;
+    }>;
 }

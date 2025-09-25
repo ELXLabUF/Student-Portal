@@ -1,0 +1,37 @@
+<div class="feedback-utilization-modal-container">
+    <h2 mat-dialog-title>{{ data.question }}</h2>
+    <div mat-dialog-content>
+        <div class="rating-scale-container">
+            <div class="rating-labels">
+                <span>Not at all</span>
+                <span>Very much</span>
+            </div>
+            <div class="rating-dots" (mouseleave)="resetHoverRating()">
+                <div
+                    *ngFor="let i of [1, 2, 3, 4, 5]"
+                    class="rating-dot-wrapper"
+                    (mouseover)="setHoverRating(i)"
+                    (click)="setRating(i)"
+                >
+                    <div
+                        class="rating-dot"
+                        [class.selected]="i <= selectedRating"
+                        [class.hovered]="i <= hoverRating"
+                    ></div>
+                    <span class="dot-number">{{ i }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div mat-dialog-actions class="modal-actions">
+        <button mat-button (click)="onCancel()">Cancel</button>
+        <button
+            mat-button
+            (click)="confirm()"
+            [disabled]="selectedRating === 0"
+            class="btn-confirm"
+        >
+            Confirm
+        </button>
+    </div>
+</div>

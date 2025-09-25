@@ -11,16 +11,19 @@ import firebase_admin
 from firebase_admin import storage
 import uuid
 
+
 if not firebase_admin._apps:
     firebase_admin.initialize_app(options={
         'storageBucket': 'contextualizer-e57ed.appspot.com'
     })
+
 
 load_dotenv()
 app = FastAPI()
 client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
 )
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -30,13 +33,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 class TranscriptRequest(BaseModel):
     transcript: str
+
 
 class UploadImageRequest(BaseModel):
     imageUrl: str
     transcriptId: str
     deviceId: str
+
 
 @app.get("/")
 async def root():
@@ -109,7 +115,7 @@ async def improve_transcript(req: TranscriptRequest):
         return {"improvementPrompt": response.output_text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 
 @app.post("/api/generate-images")
 async def generate_images(req: TranscriptRequest):
@@ -137,7 +143,8 @@ async def generate_images(req: TranscriptRequest):
             image_urls.append(response.data[0].url)
         return {"imageUrls": image_urls}
 
-        # The code below uses gpt-image-1, which can generate multiple images at once, but still takes about 1 minute. No difference with implementation above.
+        # The code below uses gpt-image-1, which can generate multiple images at once, but still takes about 1 minute. 
+		# No difference with implementation above.
                 
         # response = client.images.generate(
         #     model="gpt-image-1",

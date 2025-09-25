@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -16,10 +16,11 @@ import { Storage, ref, uploadBytes } from '@angular/fire/storage';
 import { Timestamp } from 'firebase/firestore';
 import { MatDialog } from '@angular/material/dialog';
 import { ExperienceService } from '../../services/experience-service/experience.service';
+import { AuthService } from '../../services/auth-service/auth.service';
 import { NewExperience } from '../../experience';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 import { AlertDialogComponent } from '../../components/alert-dialog/alert-dialog.component';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-create-story',
@@ -27,15 +28,18 @@ import { Observable } from 'rxjs';
     templateUrl: './create-story.component.html',
     styleUrl: './create-story.component.css',
 })
-export class CreateStoryComponent implements OnInit {
+export class CreateStoryComponent implements OnInit, OnDestroy {
     private auth = getAuth();
     user = this.auth.currentUser;
+    authSub: Subscription | undefined;
 
     isRecording = false;
     mediaRecorder!: MediaRecorder;
     recordedChunks: BlobPart[] = [];
 
     activeCapture = 'Default';
+    selectedTopic: string = '';
+    capturePrompt: string = '';
     story: string = '';
 
     constructor(
@@ -43,11 +47,23 @@ export class CreateStoryComponent implements OnInit {
         private firestore: Firestore,
         private storage: Storage,
         private experienceService: ExperienceService,
+        private authService: AuthService,
         public dialog: MatDialog
     ) {}
 
-    async ngOnInit() {
-        await this.loadActiveCapture();
+    ngOnInit() {
+        this.authSub = this.authService.currentUser.subscribe((user) => {
+            if (user) {
+                this.user = user;
+                this.loadActiveCapture();
+            }
+        });
+    }
+
+    ngOnDestroy() {
+        if (this.authSub) {
+            this.authSub.unsubscribe();
+        }
     }
 
     async loadActiveCapture() {
@@ -71,6 +87,7 @@ export class CreateStoryComponent implements OnInit {
             const studentData = studentSnap.data();
 
             const classroomName = studentData['classroom'];
+
             if (!classroomName) {
                 console.warn('Classroom field missing');
                 return;
@@ -83,21 +100,40 @@ export class CreateStoryComponent implements OnInit {
                 classroomName
             );
             const classroomSnap = await getDoc(classroomDocRef);
+
             if (!classroomSnap.exists()) {
                 console.warn('Classroom document not found:', classroomName);
                 return;
             }
 
             const capture = classroomSnap.data()?.['capture'];
+
             if (capture) {
                 this.activeCapture = capture;
             }
+
+            const data = classroomSnap.data();
+            // Save values to class, defaulting to '' if missing.
+            this.selectedTopic = data?.['selected_topic'] ?? '';
+            this.capturePrompt = data?.['capture_prompt'] ?? '';
+
+            //if (this.selectedTopic) {
+            //    this.activeCapture = this.selectedTopic;
+            //}
         } catch (error) {
             console.error('Error loading active capture:', error);
         }
     }
 
     async toggleRecording() {
+        if (!this.selectedTopic && !this.capturePrompt) {
+            this.openAlertDialog(
+                'No Project',
+                'There is no project currently. Please see your teacher for instructions!'
+            );
+            return;
+        }
+
         if (this.isRecording) {
             this.stopRecording();
         } else {
@@ -180,6 +216,7 @@ export class CreateStoryComponent implements OnInit {
                 const newExperience: NewExperience = {
                     id: `${deviceId}_${formattedDate}`,
                     capture: this.activeCapture,
+                    topic: this.selectedTopic,
                     creation_date: Timestamp.fromDate(time),
                     device_id: deviceId,
                     recording_path: filePath,
@@ -261,6 +298,14 @@ export class CreateStoryComponent implements OnInit {
     }
 
     confirmSubmitStory() {
+        if (!this.selectedTopic && !this.capturePrompt) {
+            this.openAlertDialog(
+                'No Project',
+                'There is no project currently. Please see your teacher for instructions!'
+            );
+            return;
+        }
+
         if (!this.story.trim()) {
             this.openAlertDialog(
                 'Warning',
@@ -307,6 +352,7 @@ export class CreateStoryComponent implements OnInit {
             const newExperience: NewExperience = {
                 id: `${deviceId}_${formattedDate}`,
                 capture: this.activeCapture,
+                topic: this.selectedTopic,
                 creation_date: Timestamp.fromDate(time),
                 device_id: deviceId,
                 recording_path: '',

@@ -15,6 +15,7 @@ import { ExperienceService } from '../../services/experience-service/experience.
 import { NewExperience } from '../../experience';
 import { AlertDialogComponent } from '../alert-dialog/alert-dialog.component';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { FeedbackUtilizationModalComponent } from '../feedback-utilization-modal/feedback-utilization-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 
@@ -36,10 +37,12 @@ export class TranscriptCardComponent implements OnChanges {
     isExpanded: boolean = false;
     editedText: string = '';
     improvementPrompt: string = '';
-    imageUrls: string[] = [];
-    selectedImage: string | null = null;
-    generatingImages: boolean = false;
-    uploading: boolean = false;
+    isGeneratingFeedback: boolean = false;
+
+    //imageUrls: string[] = [];
+    //selectedImage: string | null = null;
+    //generatingImages: boolean = false;
+    //uploading: boolean = false;
 
     originalTranscriptText: string = '';
     feedbackRatingValue: number = 0;
@@ -61,16 +64,29 @@ export class TranscriptCardComponent implements OnChanges {
     }
 
     toggleExpand(): void {
-        this.isExpanded = !this.isExpanded;
-
-        // If collapsing the card, keep the edit state as is
-        if (!this.isExpanded && this.isEditing) {
+        if (this.isEditing) {
+            this.cancelEdit();
             return;
         }
 
-        // If expanding the card, show the normal text if not editing
+        this.isExpanded = !this.isExpanded;
+
+        //// If collapsing the card, keep the edit state as is
+        //if (!this.isExpanded && this.isEditing) {
+        //    return;
+        //}
+
+        //// If expanding the card, show the normal text if not editing
+        //if (this.isExpanded && !this.isEditing) {
+        //    this.editedText = ''; // Reset the edited text
+        //}
         if (this.isExpanded && !this.isEditing) {
-            this.editedText = ''; // Reset the edited text
+            if (this.transcript.ai_feedback) {
+                this.improvementPrompt = this.transcript.ai_feedback;
+                this.hasRated = !!this.transcript.feedback_rating;
+            } else {
+                this.generateFeedback();
+            }
         }
     }
 
@@ -87,34 +103,60 @@ export class TranscriptCardComponent implements OnChanges {
                 this.improvementPrompt = this.transcript.ai_feedback;
                 this.hasRated = !!this.transcript.feedback_rating;
             } else {
-                this.aiService
-                    .improveTranscript(this.transcript.transcript)
-                    .subscribe({
-                        next: async (response) => {
-                            this.improvementPrompt = response.improvementPrompt; // Display the improvement prompt
-                            await this.experienceService
-                                .updateExperience(this.transcript, {
-                                    ai_feedback: response.improvementPrompt,
-                                })
-                                .then(() => {
-                                    this.transcript.ai_feedback =
-                                        response.improvementPrompt;
-                                    this.hasRated = false;
-                                });
-                        },
-                        error: (err) => {
-                            console.error('Error improving transcript:', err);
-                            //alert('Failed to generate improvement suggestions.');
-                            this.openAlertDialog(
-                                'Failed: Improvement Suggestions Not Generated',
-                                'Failed to generate improvement suggestions. Please try again.'
-                            );
-                        },
-                    });
+                //this.aiService
+                //    .improveTranscript(this.transcript.transcript)
+                //    .subscribe({
+                //        next: async (response) => {
+                //            this.improvementPrompt = response.improvementPrompt; // Display the improvement prompt
+                //            await this.experienceService
+                //                .updateExperience(this.transcript, {
+                //                    ai_feedback: response.improvementPrompt,
+                //                })
+                //                .then(() => {
+                //                    this.transcript.ai_feedback =
+                //                        response.improvementPrompt;
+                //                    this.hasRated = false;
+                //                });
+                //        },
+                //        error: (err) => {
+                //            console.error('Error improving transcript:', err);
+                //            //alert('Failed to generate improvement suggestions.');
+                //            this.openAlertDialog(
+                //                'Failed: ChatGPT AI Feedback Not Generated',
+                //                'Failed to generate ChatGPT AI feedback. Please try again.'
+                //            );
+                //        },
+                //    });
+                this.generateFeedback();
             }
         } else {
             this.isExpanded = false;
         }
+    }
+
+    private generateFeedback(): void {
+        this.isGeneratingFeedback = true;
+        this.improvementPrompt = ''; // Clear previous prompt while loading
+
+        this.aiService.improveTranscript(this.transcript.transcript).subscribe({
+            next: async (response) => {
+                this.improvementPrompt = response.improvementPrompt;
+                await this.experienceService.updateExperience(this.transcript, {
+                    ai_feedback: response.improvementPrompt,
+                });
+                this.transcript.ai_feedback = response.improvementPrompt;
+                this.hasRated = false;
+                this.isGeneratingFeedback = false;
+            },
+            error: (err) => {
+                console.error('Error improving transcript:', err);
+                this.openAlertDialog(
+                    'Failed: ChatGPT AI Feedback Not Generated',
+                    'Failed to generate ChatGPT AI feedback. Please try again.'
+                );
+                this.isGeneratingFeedback = false;
+            },
+        });
     }
 
     async saveEdit(): Promise<void> {
@@ -128,64 +170,149 @@ export class TranscriptCardComponent implements OnChanges {
 
         const hasTextChanged = this.editedText !== this.originalTranscriptText;
 
-        const experienceDocRef = doc(
-            this.angularFireStore,
-            `NewExperiences/${this.transcript.id}`
+        //const experienceDocRef = doc(
+        //    this.angularFireStore,
+        //    `NewExperiences/${this.transcript.id}`
+        //);
+
+        //try {
+        //    const docSnap = await getDoc(experienceDocRef);
+
+        //    let originalTranscriptNeedsSet = false;
+
+        //    if (docSnap.exists()) {
+        //        const originalTranscriptInDb =
+        //            docSnap.data()?.['original_transcript'];
+        //        if (!originalTranscriptInDb || originalTranscriptInDb === '') {
+        //            originalTranscriptNeedsSet = true;
+        //        }
+        //    }
+
+        //    const updates: any = {
+        //        transcript: this.editedText,
+        //        translation: this.editedText,
+        //        edited: true,
+        //    };
+
+        //    if (originalTranscriptNeedsSet) {
+        //        updates.original_transcript =
+        //            this.transcript.translation || this.editedText;
+        //    }
+
+        //    if (hasTextChanged && this.transcript.ai_feedback) {
+        //        let prevArray = this.transcript.previous_feedback || [];
+
+        //        prevArray.push({
+        //            ai_feedback: this.transcript.ai_feedback,
+        //            feedback_rating: this.transcript.feedback_rating ?? 0,
+        //        });
+
+        //        // Save to Firestore without generating new feedback now
+        //        updates.previous_feedback = prevArray;
+        //        updates.feedback_rating = null;
+        //        updates.ai_feedback = null;
+        //    }
+
+        //    await this.experienceService.updateExperience(
+        //        this.transcript,
+        //        updates
+        //    );
+
+        //    Object.assign(this.transcript, updates);
+        //    this.improvementPrompt = hasTextChanged
+        //        ? ''
+        //        : updates.ai_feedback || this.improvementPrompt;
+        //    this.hasRated = false;
+
+        //    this.originalTranscriptText =
+        //        this.transcript.original_transcript ||
+        //        this.originalTranscriptText;
+        //    this.originalTranscriptText = this.editedText;
+
+        //    this.editedText = '';
+        //    this.isEditing = false;
+        //    this.wasEdited = true;
+        //    this.isExpanded = true;
+
+        //    this.openAlertDialog(
+        //        'Success: Story Saved',
+        //        'The story was saved successfully!'
+        //    );
+        //} catch (err) {
+        //    console.error('Failed to update Firestore document', err);
+        //    this.openAlertDialog(
+        //        'Failed: Story Not Saved',
+        //        'The story was not saved successfully. Please try again.'
+        //    );
+        //}
+
+        if (hasTextChanged && this.transcript.ai_feedback) {
+            const dialogRef = this.dialog.open(
+                FeedbackUtilizationModalComponent,
+                {
+                    width: '550px',
+                    data: {
+                        question:
+                            'How much did you use the ChatGPT AI feedback to edit your story?',
+                    },
+                    disableClose: true,
+                }
+            );
+
+            dialogRef.afterClosed().subscribe((result) => {
+                if (result !== null) {
+                    this.proceedWithSave(result);
+                }
+            });
+        } else {
+            // If text hasn't changed or there's no feedback, save without the modal
+            this.proceedWithSave(0); // Pass 0 as the rating
+        }
+    }
+
+    private async proceedWithSave(utilizationRating: number): Promise<void> {
+        const hasTextChanged =
+            this.editedText.trim() !== this.originalTranscriptText.trim();
+
+        const updates: any = {
+            transcript: this.editedText,
+            translation: this.editedText,
+            edited: true,
+        };
+
+        const docSnap = await getDoc(
+            doc(this.angularFireStore, `NewExperiences/${this.transcript.id}`)
         );
 
+        if (docSnap.exists() && !docSnap.data()?.['original_transcript']) {
+            updates.original_transcript = this.originalTranscriptText;
+        }
+
+        if (hasTextChanged && this.transcript.ai_feedback) {
+            let prevArray = this.transcript.previous_feedback || [];
+            prevArray.push({
+                ai_feedback: this.transcript.ai_feedback,
+                feedback_rating: this.transcript.feedback_rating ?? 0,
+                feedback_utilization_rating: utilizationRating, // Add the new rating
+            });
+            updates.previous_feedback = prevArray;
+            updates.feedback_rating = null;
+            updates.ai_feedback = null;
+        }
+
         try {
-            const docSnap = await getDoc(experienceDocRef);
-
-            let originalTranscriptNeedsSet = false;
-            if (docSnap.exists()) {
-                const originalTranscriptInDb =
-                    docSnap.data()?.['original_transcript'];
-                if (!originalTranscriptInDb || originalTranscriptInDb === '') {
-                    originalTranscriptNeedsSet = true;
-                }
-            }
-
-            const updates: any = {
-                transcript: this.editedText,
-                translation: this.editedText,
-                edited: true,
-            };
-
-            if (originalTranscriptNeedsSet) {
-                updates.original_transcript =
-                    this.transcript.translation || this.editedText;
-            }
-
-            if (hasTextChanged && this.transcript.ai_feedback) {
-                let prevArray = this.transcript.previous_feedback || [];
-
-                prevArray.push({
-                    ai_feedback: this.transcript.ai_feedback,
-                    feedback_rating: this.transcript.feedback_rating ?? 0,
-                });
-
-                // Save to Firestore without generating new feedback now
-                updates.previous_feedback = prevArray;
-                updates.feedback_rating = null;
-                updates.ai_feedback = null;
-            }
-
             await this.experienceService.updateExperience(
                 this.transcript,
                 updates
             );
 
             Object.assign(this.transcript, updates);
+
             this.improvementPrompt = hasTextChanged
                 ? ''
                 : updates.ai_feedback || this.improvementPrompt;
             this.hasRated = false;
-
-            this.originalTranscriptText =
-                this.transcript.original_transcript ||
-                this.originalTranscriptText;
             this.originalTranscriptText = this.editedText;
-
             this.editedText = '';
             this.isEditing = false;
             this.wasEdited = true;
@@ -264,40 +391,46 @@ export class TranscriptCardComponent implements OnChanges {
     }
 
     async onFeedbackRefresh(): Promise<void> {
-        // Store current prompt and its rating as a previous feedback
+        this.isGeneratingFeedback = true;
+        this.improvementPrompt = '';
+
         let prevArray = this.transcript.previous_feedback || [];
+
         if (this.transcript.ai_feedback) {
             prevArray.push({
                 ai_feedback: this.transcript.ai_feedback,
                 feedback_rating: this.transcript.feedback_rating ?? 0,
+                feedback_utilization_rating: 0,
             });
         }
-        // Reset feedback and rating fields in Firestore
+
         await this.experienceService.updateExperience(this.transcript, {
             previous_feedback: prevArray,
             ai_feedback: null,
             feedback_rating: null,
         });
 
-        // Call backend for new feedback
-        this.aiService.improveTranscript(this.transcript.transcript).subscribe({
-            next: async (response) => {
-                this.improvementPrompt = response.improvementPrompt;
-                await this.experienceService.updateExperience(this.transcript, {
-                    ai_feedback: response.improvementPrompt,
-                    feedback_rating: null,
-                });
-                this.transcript.ai_feedback = response.improvementPrompt;
-                this.transcript.feedback_rating = null;
-                this.hasRated = false;
-            },
-            error: (err) => {
-                this.openAlertDialog(
-                    'Failed: Feedback Not Refreshed',
-                    'Failed to get new feedback from backend. Please try again.'
-                );
-            },
-        });
+        //this.aiService.improveTranscript(this.transcript.transcript).subscribe({
+        //    next: async (response) => {
+        //        this.improvementPrompt = response.improvementPrompt;
+        //        await this.experienceService.updateExperience(this.transcript, {
+        //            ai_feedback: response.improvementPrompt,
+        //            feedback_rating: null,
+        //        });
+        //        this.transcript.ai_feedback = response.improvementPrompt;
+        //        this.transcript.feedback_rating = null;
+        //        this.hasRated = false;
+        //    },
+        //    error: (err) => {
+        //        this.openAlertDialog(
+        //            'Failed: Feedback Not Refreshed',
+        //            'Failed to get new feedback from backend. Please try again.'
+        //        );
+        //    },
+        //});
+
+        this.transcript.previous_feedback = prevArray;
+        this.generateFeedback();
     }
 
     feedbackStarIcon(starNumber: number): string {
@@ -410,9 +543,9 @@ export class TranscriptCardComponent implements OnChanges {
         });
     }*/
 
-    onOpenImageModal() {
+    /*onOpenImageModal() {
         this.openImageModal.emit(this.transcript.id);
-    }
+    }*/
 
     openAlertDialog(title: string, message: string): void {
         this.dialog.open(AlertDialogComponent, {

@@ -1,6 +1,23 @@
 <div class="create-story-container">
     <h1 class="page-title">Record A Story</h1>
 
+    <!-- Current topic and prompt -->
+    <div class="classroom-info">
+        <ng-container *ngIf="selectedTopic && capturePrompt">
+            <div class="topic-text">
+                <strong>Topic:</strong> {{ selectedTopic }}
+            </div>
+            <div class="prompt-text">
+                <strong>Prompt:</strong> {{ capturePrompt }}
+            </div>
+        </ng-container>
+        <ng-container *ngIf="selectedTopic && !capturePrompt">
+            <div class="topic-text">
+                <strong>Topic:</strong> {{ selectedTopic }}
+            </div>
+        </ng-container>
+    </div>
+
     <!-- Audio Recording -->
     <div class="audio-recorder">
         <button

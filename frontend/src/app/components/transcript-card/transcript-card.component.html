@@ -37,6 +37,56 @@
                 </p>
             </div>
 
+            <ng-template #feedbackSection>
+                <!-- Loading Indicator -->
+                <div *ngIf="isGeneratingFeedback" class="feedback-loading">
+                    <div class="spinner"></div>
+                    <p>The ChatGPT AI feedback is being generated...</p>
+                </div>
+
+                <!-- AI Feedback Display -->
+                <div *ngIf="!isGeneratingFeedback && improvementPrompt">
+                    <h4>
+                        ChatGPT AI Feedback:
+                        <span
+                            class="feedback-refresh-btn"
+                            (click)="onFeedbackRefresh()"
+                            title="Refresh Feedback"
+                        >
+                            <span class="material-icons refresh-icon">
+                                autorenew
+                            </span>
+                        </span>
+                    </h4>
+                    <p>{{ improvementPrompt }}</p>
+
+                    <!-- Feedback Rating -->
+                    <div class="star-rating">
+                        <h4>Rate this feedback:</h4>
+                        <ng-container
+                            *ngFor="let starNumber of [1, 2, 3, 4, 5]"
+                        >
+                            <span
+                                class="star"
+                                [class.filled]="
+                                    feedbackRatingValue >= starNumber
+                                "
+                                [class.readonly]="hasRated"
+                                (mouseover)="
+                                    !hasRated && onStarHover(starNumber)
+                                "
+                                (mouseleave)="!hasRated && onStarHover(null)"
+                                (click)="!hasRated && onStarClick(starNumber)"
+                            >
+                                <i class="material-icons">
+                                    {{ feedbackStarIcon(starNumber) }}
+                                </i>
+                            </span>
+                        </ng-container>
+                    </div>
+                </div>
+            </ng-template>
+
             <!-- Editable text area -->
             <div *ngIf="isEditing">
                 <textarea [(ngModel)]="editedText" rows="6"></textarea>
@@ -44,14 +94,23 @@
                     <button (click)="saveEdit()">Save</button>
                     <button (click)="cancelEdit()">Cancel</button>
                 </div>
+
+                <ng-container
+                    *ngTemplateOutlet="feedbackSection"
+                ></ng-container>
+            </div>
+
+            <div *ngIf="isExpanded && !isEditing">
+                <ng-container
+                    *ngTemplateOutlet="feedbackSection"
+                ></ng-container>
             </div>
 
             <!-- Display the improvement prompt -->
-            <div *ngIf="isEditing && improvementPrompt">
+            <!--<div *ngIf="isEditing && improvementPrompt">
                 <h4>
-                    AI Feedback:
+                    ChatGPT AI Feedback:
 
-                    <!-- Feedback refresh button -->
                     <span
                         class="feedback-refresh-btn"
                         (click)="onFeedbackRefresh()"
@@ -64,7 +123,6 @@
                 </h4>
                 <p>{{ improvementPrompt }}</p>
 
-                <!-- Feedback Rating -->
                 <div class="star-rating">
                     <h4>Rate this feedback:</h4>
                     <ng-container *ngFor="let starNumber of [1, 2, 3, 4, 5]">
@@ -82,7 +140,7 @@
                         </span>
                     </ng-container>
                 </div>
-            </div>
+            </div>-->
 
             <!-- Display assigned image -->
             <!--<div *ngIf="isExpanded && transcript.imageUrl && !isEditing">
@@ -119,7 +177,7 @@
                 <p class="transcript-date">
                     {{ transcript.creation_date.toDate() | date : "MMM d, y" }}
                 </p>
-                <p class="transcript-topic">{{ transcript.capture }}</p>
+                <p class="transcript-topic">{{ transcript.topic }}</p>
             </div>
             <div class="collapse-card" (click)="toggleExpand()">
                 <span class="material-icons">

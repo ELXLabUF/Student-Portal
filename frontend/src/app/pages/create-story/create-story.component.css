@@ -13,7 +13,24 @@
     font-size: 50px;
     color: #ff8800;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+}
+
+.classroom-info {
+    font-family: "Barlow", sans-serif;
+    font-size: 30px;
+    line-height: 35px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.topic-text {
+    color: #3f3734;
+    margin-bottom: 5px;
+}
+
+.prompt-text {
+    color: #4f4643;
 }
 
 .audio-recorder {
@@ -50,17 +67,17 @@
 }
 
 .recording-status {
+    font-family: "Barlow", sans-serif;
     font-size: 20px;
     font-weight: 600;
     color: #cc0000;
-    font-family: "Barlow", sans-serif;
 }
 
 .separator {
+    font-family: "Barlow", sans-serif;
     text-align: center;
     font-size: 40px;
     font-weight: 600;
-    font-family: "Barlow", sans-serif;
 }
 
 .story-entry {
