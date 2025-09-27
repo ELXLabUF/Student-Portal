@@ -47,6 +47,7 @@
             placeholder="Write your story here..."
             rows="4"
             class="story-textarea"
+            (input)="onStoryInput()"
         ></textarea>
         <button class="confirm-btn" (click)="confirmSubmitStory()">
             Submit

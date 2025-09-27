@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 //import { Storage, getDownloadURL, listAll, ref } from '@angular/fire/storage';
@@ -12,8 +12,9 @@ import {
     where,
 } from '@angular/fire/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { ExperienceService } from '../../services/experience-service/experience.service';
 import { TranscriptCardComponent } from '../../components/transcript-card/transcript-card.component';
+import { ExperienceService } from '../../services/experience-service/experience.service';
+import { UserInteractionService } from '../../services/user-interaction-service/user-interaction.service';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 import { AlertDialogComponent } from '../../components/alert-dialog/alert-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -26,7 +27,7 @@ import { Observable } from 'rxjs';
     templateUrl: './student-transcripts.component.html',
     styleUrls: ['./student-transcripts.component.css'],
 })
-export class StudentTranscriptsComponent implements OnInit {
+export class StudentTranscriptsComponent implements OnInit, OnDestroy {
     private auth = getAuth();
     user = this.auth.currentUser;
 
@@ -47,6 +48,7 @@ export class StudentTranscriptsComponent implements OnInit {
         //private storage: Storage,
         private firestore: Firestore,
         private experienceService: ExperienceService,
+        private userInteractionService: UserInteractionService,
         public dialog: MatDialog
     ) {}
 
@@ -89,6 +91,8 @@ export class StudentTranscriptsComponent implements OnInit {
         //        );
         //    });
 
+        this.userInteractionService.startPageTimer("'My Stories' page");
+
         this.user = await new Promise((resolve) => {
             const unsubscribe = onAuthStateChanged(this.auth, (user: any) => {
                 unsubscribe();
@@ -101,6 +105,10 @@ export class StudentTranscriptsComponent implements OnInit {
         /*if (this.user?.uid) {
             this.loadUserImages();
         }*/
+    }
+
+    ngOnDestroy(): void {
+        this.userInteractionService.endPageTimerAndLog("'My Stories' page");
     }
 
     /*loadUserImages() {
@@ -258,7 +266,21 @@ export class StudentTranscriptsComponent implements OnInit {
         return topicMap;
     }
 
+    onTopicDropdownClick(): void {
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            "'Topic' filter dropdown",
+            'Open topic filter options'
+        );
+    }
+
     applyFilter(): void {
+        this.userInteractionService.logUserInteraction(
+            'Selected',
+            `'${this.filterTopic}' from topic dropdown`,
+            'Filter stories by selected topic'
+        );
+
         this.displayedTranscripts = this.allTranscripts.filter((item) => {
             const matchesTopic = this.filterTopic
                 ? item.topic === this.filterTopic
@@ -268,6 +290,12 @@ export class StudentTranscriptsComponent implements OnInit {
     }
 
     resetFilter(): void {
+        this.userInteractionService.logUserInteraction(
+            'Selected',
+            "'All Topics' from topic dropdown",
+            'Reset story filter'
+        );
+
         this.filterTopic = '';
         this.displayedTranscripts = this.allTranscripts;
     }

@@ -20,6 +20,7 @@ import { AuthService } from '../../services/auth-service/auth.service';
 import { NewExperience } from '../../experience';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 import { AlertDialogComponent } from '../../components/alert-dialog/alert-dialog.component';
+import { UserInteractionService } from '../../services/user-interaction-service/user-interaction.service';
 import { Observable, Subscription } from 'rxjs';
 
 @Component({
@@ -42,16 +43,22 @@ export class CreateStoryComponent implements OnInit, OnDestroy {
     capturePrompt: string = '';
     story: string = '';
 
+    private storyInputTimeout: any = null;
+    private readonly debounceTime: number = 1500;
+
     constructor(
         private router: Router,
         private firestore: Firestore,
         private storage: Storage,
         private experienceService: ExperienceService,
         private authService: AuthService,
+        private userInteractionService: UserInteractionService,
         public dialog: MatDialog
     ) {}
 
     ngOnInit() {
+        this.userInteractionService.startPageTimer("'Record A Story' page");
+
         this.authSub = this.authService.currentUser.subscribe((user) => {
             if (user) {
                 this.user = user;
@@ -61,6 +68,8 @@ export class CreateStoryComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        this.userInteractionService.endPageTimerAndLog("'Record A Story' page");
+
         if (this.authSub) {
             this.authSub.unsubscribe();
         }
@@ -135,8 +144,18 @@ export class CreateStoryComponent implements OnInit, OnDestroy {
         }
 
         if (this.isRecording) {
+            this.userInteractionService.logUserInteraction(
+                'Clicked',
+                "'Stop Recording' button",
+                'Stop audio recording and save story'
+            );
             this.stopRecording();
         } else {
+            this.userInteractionService.logUserInteraction(
+                'Clicked',
+                "'Start Recording' button",
+                'Begin audio recording'
+            );
             await this.startRecording();
         }
     }
@@ -297,6 +316,24 @@ export class CreateStoryComponent implements OnInit, OnDestroy {
         }
     }
 
+    onStoryInput(): void {
+        // Clear the previous timeout to reset the timer
+        clearTimeout(this.storyInputTimeout);
+
+        // Set a new timeout to log the interaction after a pause
+        this.storyInputTimeout = setTimeout(() => {
+            this.logStoryChange();
+        }, this.debounceTime);
+    }
+
+    private logStoryChange(): void {
+        this.userInteractionService.logUserInteraction(
+            'Typed',
+            "'Story' textarea",
+            `Text changed (length: ${this.story.length} characters)`
+        );
+    }
+
     confirmSubmitStory() {
         if (!this.selectedTopic && !this.capturePrompt) {
             this.openAlertDialog(
@@ -314,13 +351,29 @@ export class CreateStoryComponent implements OnInit, OnDestroy {
             return;
         }
 
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            "'Submit' story button",
+            'Open confirmation dialog'
+        );
+
         this.openConfirmDialog(
             'Submit Story',
             'Are you sure you want to submit your story?'
         ).subscribe(async (decision: boolean) => {
             if (decision) {
+                this.userInteractionService.logUserInteraction(
+                    'Clicked',
+                    "'Confirm' on submit story dialog",
+                    'User confirmed story submission'
+                );
                 this.submitStory();
             } else {
+                this.userInteractionService.logUserInteraction(
+                    'Clicked',
+                    "'Cancel' on submit story dialog",
+                    'User cancelled story submission'
+                );
                 return;
             }
         });
@@ -385,6 +438,11 @@ export class CreateStoryComponent implements OnInit, OnDestroy {
     }
 
     onBackClick() {
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            "'Back' button",
+            "Navigate to 'Main Menu' page"
+        );
         this.router.navigate(['/home']);
     }
 

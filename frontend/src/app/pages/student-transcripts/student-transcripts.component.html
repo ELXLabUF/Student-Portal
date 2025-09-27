@@ -3,7 +3,11 @@
 
     <!-- Dropdown for Topic -->
     <div class="filter-controls">
-        <select [(ngModel)]="filterTopic" class="dropdown-select">
+        <select
+            [(ngModel)]="filterTopic"
+            class="dropdown-select"
+            (click)="onTopicDropdownClick()"
+        >
             <option value="" (click)="resetFilter()">All Topics</option>
             <option
                 *ngFor="let topic of topics"

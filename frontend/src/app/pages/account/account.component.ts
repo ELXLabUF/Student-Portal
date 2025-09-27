@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { getAuth } from 'firebase/auth';
@@ -10,6 +10,7 @@ import {
     where,
 } from '@angular/fire/firestore';
 import { AuthService } from '../../services/auth-service/auth.service';
+import { UserInteractionService } from '../../services/user-interaction-service/user-interaction.service';
 import { AlertDialogComponent } from '../../components/alert-dialog/alert-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -19,7 +20,7 @@ import { MatDialog } from '@angular/material/dialog';
     templateUrl: './account.component.html',
     styleUrls: ['./account.component.css'],
 })
-export class AccountComponent implements OnInit {
+export class AccountComponent implements OnInit, OnDestroy {
     private auth = getAuth();
     user = this.auth.currentUser;
 
@@ -31,13 +32,20 @@ export class AccountComponent implements OnInit {
     constructor(
         private authService: AuthService,
         private angularFirestore: Firestore,
+        private userInteractionService: UserInteractionService,
         public dialog: MatDialog
     ) {}
 
     ngOnInit(): void {
+        this.userInteractionService.startPageTimer("'Account' page");
+
         if (this.user) {
             this.fetchStudentName(this.user.uid);
         }
+    }
+
+    ngOnDestroy(): void {
+        this.userInteractionService.endPageTimerAndLog("'Account' page");
     }
 
     async fetchStudentName(deviceId: string): Promise<void> {
@@ -61,6 +69,16 @@ export class AccountComponent implements OnInit {
     }
 
     togglePasswordForm(): void {
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            this.showPasswordForm
+                ? "'Cancel' button"
+                : "'Change Password' button",
+            this.showPasswordForm
+                ? 'Hide password change form'
+                : 'Show password change form'
+        );
+
         this.showPasswordForm = !this.showPasswordForm;
         this.newPassword = '';
         this.confirmPassword = '';
@@ -74,6 +92,12 @@ export class AccountComponent implements OnInit {
             );
             return;
         }
+
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            "'Update Password' button",
+            'Attempt to update password'
+        );
 
         if (this.newPassword !== this.confirmPassword) {
             this.openAlertDialog(

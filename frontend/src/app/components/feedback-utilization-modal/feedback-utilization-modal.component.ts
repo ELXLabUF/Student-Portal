@@ -1,6 +1,7 @@
 import { Component, Inject, ViewEncapsulation } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
+import { UserInteractionService } from '../../services/user-interaction-service/user-interaction.service';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
     selector: 'app-feedback-utilization-modal',
@@ -16,10 +17,17 @@ export class FeedbackUtilizationModalComponent {
 
     constructor(
         public dialogRef: MatDialogRef<FeedbackUtilizationModalComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { question: string }
+        @Inject(MAT_DIALOG_DATA) public data: { question: string },
+        private userInteractionService: UserInteractionService
     ) {}
 
     setRating(rating: number): void {
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            'Feedback utilization rating dot',
+            `Selected rating: ${rating}`
+        );
+
         this.selectedRating = rating;
     }
 
@@ -32,12 +40,24 @@ export class FeedbackUtilizationModalComponent {
     }
 
     confirm(): void {
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            "'Confirm' button on feedback utilization modal",
+            `Confirmed rating of ${this.selectedRating}`
+        );
+
         if (this.selectedRating > 0) {
             this.dialogRef.close(this.selectedRating);
         }
     }
 
     onCancel(): void {
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            "'Cancel' button on feedback utilization modal",
+            'Closed modal without confirming rating'
+        );
+
         this.dialogRef.close(null);
     }
 }

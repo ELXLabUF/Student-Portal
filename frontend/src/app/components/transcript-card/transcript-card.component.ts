@@ -10,12 +10,13 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { getAuth } from 'firebase/auth';
 import { doc, Firestore, getDoc } from '@angular/fire/firestore';
+import { NewExperience } from '../../experience';
+import { FeedbackUtilizationModalComponent } from '../feedback-utilization-modal/feedback-utilization-modal.component';
 import { AiService } from '../../services/ai-service/ai.service';
 import { ExperienceService } from '../../services/experience-service/experience.service';
-import { NewExperience } from '../../experience';
+import { UserInteractionService } from '../../services/user-interaction-service/user-interaction.service';
 import { AlertDialogComponent } from '../alert-dialog/alert-dialog.component';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
-import { FeedbackUtilizationModalComponent } from '../feedback-utilization-modal/feedback-utilization-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 
@@ -53,6 +54,7 @@ export class TranscriptCardComponent implements OnChanges {
         private angularFireStore: Firestore,
         private aiService: AiService,
         private experienceService: ExperienceService,
+        private userInteractionService: UserInteractionService,
         public dialog: MatDialog
     ) {}
 
@@ -64,6 +66,14 @@ export class TranscriptCardComponent implements OnChanges {
     }
 
     toggleExpand(): void {
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            `'${this.isExpanded ? 'Collapse' : 'Expand'}' icon for story: ${
+                this.transcript.id
+            }`,
+            `${this.isExpanded ? 'Collapse' : 'Expand'} story card`
+        );
+
         if (this.isEditing) {
             this.cancelEdit();
             return;
@@ -91,6 +101,12 @@ export class TranscriptCardComponent implements OnChanges {
     }
 
     async toggleEdit(): Promise<void> {
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            `'Edit' icon for story: ${this.transcript.id}`,
+            'Toggle story edit mode'
+        );
+
         this.isEditing = !this.isEditing;
 
         if (this.isEditing) {
@@ -271,6 +287,12 @@ export class TranscriptCardComponent implements OnChanges {
     }
 
     private async proceedWithSave(utilizationRating: number): Promise<void> {
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            `'Save' button for story: ${this.transcript.id}`,
+            `Saved with feedback utilization rating: ${utilizationRating}`
+        );
+
         const hasTextChanged =
             this.editedText.trim() !== this.originalTranscriptText.trim();
 
@@ -332,6 +354,12 @@ export class TranscriptCardComponent implements OnChanges {
     }
 
     cancelEdit(): void {
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            `'Cancel' button for story edit: ${this.transcript.id}`,
+            'Cancelled story edit'
+        );
+
         this.isEditing = false; // Exit edit mode
         this.isExpanded = false;
         this.editedText = ''; // Clear the edited text
@@ -348,6 +376,12 @@ export class TranscriptCardComponent implements OnChanges {
         //    return;
         //}
 
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            `'Send to Teacher' icon for story: ${this.transcript.id}`,
+            'Open confirmation dialog'
+        );
+
         if (this.transcript.show_to_teacher) {
             this.openAlertDialog(
                 'Info: Story Already Sent',
@@ -361,6 +395,12 @@ export class TranscriptCardComponent implements OnChanges {
             'Are you sure you want to send this story to your teacher?'
         ).subscribe(async (decision: boolean) => {
             if (decision) {
+                this.userInteractionService.logUserInteraction(
+                    'Clicked',
+                    "'Confirm' on send story dialog",
+                    'User story sent to teacher'
+                );
+
                 this.transcript.show_to_teacher = true;
 
                 this.experienceService
@@ -385,12 +425,23 @@ export class TranscriptCardComponent implements OnChanges {
                         );
                     });
             } else {
+                this.userInteractionService.logUserInteraction(
+                    'Clicked',
+                    "'Cancel' on send story dialog",
+                    'User story not sent to teacher'
+                );
                 return;
             }
         });
     }
 
     async onFeedbackRefresh(): Promise<void> {
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            `'Refresh Feedback' icon for story: ${this.transcript.id}`,
+            'Generate new AI feedback'
+        );
+
         this.isGeneratingFeedback = true;
         this.improvementPrompt = '';
 
@@ -454,6 +505,12 @@ export class TranscriptCardComponent implements OnChanges {
 
         const rating = index;
 
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            `Star rating for story: ${this.transcript.id}`,
+            `Rated feedback with ${rating} star(s)`
+        );
+
         this.openConfirmDialog(
             'Rate Feedback',
             `Are you sure you want to rate this feedback as ${rating} star${
@@ -461,6 +518,12 @@ export class TranscriptCardComponent implements OnChanges {
             }?`
         ).subscribe(async (decision: boolean) => {
             if (decision) {
+                this.userInteractionService.logUserInteraction(
+                    'Clicked',
+                    "'Confirm' on feedback rating dialog",
+                    'User confirmed rating for feedback'
+                );
+
                 this.hasRated = true;
                 this.feedbackRatingValue = rating;
                 await this.experienceService.updateExperience(this.transcript, {
@@ -468,6 +531,11 @@ export class TranscriptCardComponent implements OnChanges {
                 });
                 this.transcript.feedback_rating = rating;
             } else {
+                this.userInteractionService.logUserInteraction(
+                    'Clicked',
+                    "'Cancel' on feedback rating dialog",
+                    'User cancelled rating for feedback'
+                );
                 return;
             }
         });
