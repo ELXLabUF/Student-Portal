@@ -1,31 +1,78 @@
 <div class="main-container">
     <h1 class="page-header">My Stories</h1>
 
-    <!-- Dropdown for Topic -->
-    <div class="filter-controls">
-        <select
-            [(ngModel)]="filterTopic"
-            class="dropdown-select"
-            (click)="onTopicDropdownClick()"
-        >
-            <option value="" (click)="resetFilter()">All Topics</option>
-            <option
-                *ngFor="let topic of topics"
-                [value]="topic"
-                (click)="applyFilter()"
-            >
-                {{ topic }}
-            </option>
-        </select>
-    </div>
+    <div class="content-wrapper">
+        <div class="stories-column">
+            <div class="filter-controls">
+                <select
+                    [(ngModel)]="filterTopic"
+                    class="dropdown-select"
+                    (change)="applyFilter()"
+                    (click)="onTopicDropdownClick()"
+                >
+                    <option value="">All Topics</option>
+                    <option *ngFor="let topic of topics" [value]="topic">
+                        {{ topic }}
+                    </option>
+                </select>
 
-    <div class="transcript-list-container">
-        <div class="transcript-list">
-            <app-transcript-card
-                *ngFor="let transcript of displayedTranscripts"
-                [transcript]="transcript"
-            >
-            </app-transcript-card>
+                <select
+                    [(ngModel)]="filterStatus"
+                    class="dropdown-select"
+                    (change)="applyFilter()"
+                    (click)="onStatusDropdownClick()"
+                >
+                    <option value="">All Statuses</option>
+                    <option value="edited">Edited</option>
+                    <option value="not_edited">Not Edited</option>
+                    <option value="sent">Sent</option>
+                    <option value="not_sent">Not Sent</option>
+                </select>
+            </div>
+
+            <div class="transcript-list-container">
+                <div class="transcript-list">
+                    <app-transcript-card
+                        *ngFor="
+                            let transcript of displayedTranscripts;
+                            trackBy: trackByTranscriptId
+                        "
+                        [transcript]="transcript"
+                    >
+                    </app-transcript-card>
+
+                    <div
+                        *ngIf="displayedTranscripts.length === 0"
+                        class="no-stories-message"
+                    >
+                        <p>No stories match your current filter selection.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend-column">
+            <div class="legend-container">
+                <h3>Icon Key</h3>
+                <ul class="legend-list">
+                    <li class="legend-item">
+                        <span class="material-icons">edit</span>
+                        <span>- Edit Story</span>
+                    </li>
+                    <li class="legend-item">
+                        <span class="material-icons active-icon">edit</span>
+                        <span>- Story is Edited</span>
+                    </li>
+                    <li class="legend-item">
+                        <span class="material-icons">send</span>
+                        <span>- Send to Teacher</span>
+                    </li>
+                    <li class="legend-item">
+                        <span class="material-icons active-icon">send</span>
+                        <span>- Story is Sent</span>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 

@@ -3,13 +3,13 @@
     flex-direction: row;
 }
 
-.transcript-image-container {
+/*.transcript-image-container {
     display: flex;
     width: 15%;
     margin: auto 0px;
-}
+}*/
 
-.no-image-placeholder {
+/*.no-image-placeholder {
     width: 150px;
     height: 150px;
     background-color: #c4c0bf;
@@ -21,12 +21,12 @@
     font-family: "Barlow", sans-serif;
     font-size: 20px;
     text-align: center;
-}
+}*/
 
 .transcript-card {
-    /*display: flex;*/
-    /*flex-direction: row;*/
-    /*width: 70%;*/
+    /*display: flex;
+    flex-direction: row;
+    width: 70%;*/
     width: 100%;
     background-color: #ffffff;
     border: 2px solid #c4c0bf;
@@ -35,7 +35,7 @@
     overflow: hidden;
     transition: max-height 0.4s ease, box-shadow 0.4s ease;
     max-height: 140px;
-    width: 800px;
+    width: 1000px;
     position: relative;
 }
 
@@ -215,21 +215,21 @@ button {
     color: #4f4643;
 }
 
-.image-list {
+/*.image-list {
     gap: 20px;
     display: flex;
-}
+}*/
 
-.transcript-image {
+/*.transcript-image {
     width: 150px;
     height: 150px;
     border-radius: 12px;
-}
+}*/
 
-.transcript-image:hover {
+/*.transcript-image:hover {
     cursor: pointer;
     transform: scale(1.05);
-}
+}*/
 
 button:hover {
     background-color: #cc6600;
@@ -243,15 +243,15 @@ button:hover {
     border-top: 2px solid #c4c0bf;
 }
 
-.transcript-content {
+/*.transcript-content {
     flex: 1;
     min-width: 0;
-}
+}*/
 
-.transcript-title {
+/*.transcript-title {
     font-size: 18px;
     margin: 10px;
-}
+}*/
 
 .transcript-details {
     display: flex;
@@ -277,7 +277,8 @@ button:hover {
 
 .collapse-card {
     position: absolute;
-    left: 400px;
+    left: 50%;
+    transform: translateX(-50%);
     color: #4f4643;
 }
 
@@ -287,21 +288,41 @@ button:hover {
 
 .transcript-icons {
     display: flex;
-    gap: 30px;
+    gap: 15px;
     margin-right: 10px;
+    align-items: center;
 }
 
-.edit-btn:hover {
+.transcript-icons .material-icons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
     cursor: pointer;
-    color: #4f4643;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.image-btn:hover {
-    cursor: pointer;
-    color: #4f4643;
+.transcript-icons .material-icons:hover {
+    background-color: #e0e0e0;
 }
 
-.send-btn:hover {
+.transcript-icons .active-icon {
+    background-color: #90d600;
+    color: #ffffff;
+}
+
+.transcript-icons .active-icon:hover {
+    background-color: #7ab500;
+}
+
+.icon-hidden {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/*.image-btn:hover {
     cursor: pointer;
     color: #4f4643;
-}
+}*/

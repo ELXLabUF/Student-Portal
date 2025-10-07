@@ -392,7 +392,7 @@ export class TranscriptCardComponent implements OnChanges {
 
         this.openConfirmDialog(
             'Send Story To Teacher',
-            'Are you sure you want to send this story to your teacher?'
+            'Once you send the story to your teacher, you will no longer be able to edit the story. Are you sure you want to send this story to your teacher?'
         ).subscribe(async (decision: boolean) => {
             if (decision) {
                 this.userInteractionService.logUserInteraction(

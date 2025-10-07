@@ -6,12 +6,27 @@
     </div>
     <nav>
         <ul class="nav-links">
+            <li *ngIf="showRecordStoryLink">
+                <a (click)="onRecordStoryClick()">Record A Story</a>
+            </li>
+            <li *ngIf="showMyStoriesLink">
+                <a (click)="onMyStoriesClick()">My Stories</a>
+            </li>
             <li><a (click)="onAboutClick()">About</a></li>
             <!--<li *ngIf="isLoggedIn"><a routerLink="/class">Class Stories</a></li>-->
-            <li *ngIf="isLoggedIn">
-                <a (click)="onAccountClick()">Account</a>
+            <li *ngIf="isLoggedIn" class="profile-dropdown">
+                <i
+                    class="material-icons user-icon"
+                    (click)="toggleDropdown($event)"
+                >
+                    account_circle
+                </i>
+                <div class="dropdown-menu" [class.show]="isDropdownOpen">
+                    <a (click)="onAccountClick()">Account</a>
+                    <hr class="dropdown-divider" />
+                    <a (click)="onLogoutClick()">Logout</a>
+                </div>
             </li>
-            <li *ngIf="isLoggedIn"><a (click)="onLogoutClick()">Logout</a></li>
         </ul>
     </nav>
 </header>

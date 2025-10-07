@@ -5,7 +5,7 @@
     <div class="classroom-info">
         <ng-container *ngIf="selectedTopic && capturePrompt">
             <div class="topic-text">
-                <strong>Topic:</strong> {{ selectedTopic }}
+                <strong>Current Topic:</strong> {{ selectedTopic }}
             </div>
             <div class="prompt-text">
                 <strong>Prompt:</strong> {{ capturePrompt }}
@@ -19,8 +19,9 @@
     </div>
 
     <!-- Audio Recording -->
-    <div class="audio-recorder">
+    <div class="audio-recorder" *ngIf="!isReviewing">
         <button
+            *ngIf="!isProcessing"
             class="record-btn"
             (click)="toggleRecording()"
             [attr.aria-label]="
@@ -36,23 +37,44 @@
             </ng-container>
         </button>
         <span class="recording-status" *ngIf="isRecording">Recording...</span>
+
+        <div class="processing-indicator" *ngIf="isProcessing">
+            <div class="spinner"></div>
+            <span class="processing-text">Processing your recording...</span>
+        </div>
     </div>
 
-    <p class="separator">OR</p>
-
-    <!-- Story Text Box -->
-    <div class="story-entry">
-        <textarea
-            [(ngModel)]="story"
-            placeholder="Write your story here..."
-            rows="4"
-            class="story-textarea"
-            (input)="onStoryInput()"
-        ></textarea>
-        <button class="confirm-btn" (click)="confirmSubmitStory()">
-            Submit
-        </button>
+    <!-- Audio Review -->
+    <div class="audio-review" *ngIf="isReviewing">
+        <p class="review-prompt">Listen to your recording:</p>
+        <audio [src]="recordedAudioUrl" controls class="audio-player"></audio>
+        <div class="review-buttons">
+            <button class="confirm-btn" (click)="submitRecording()">
+                Submit
+            </button>
+            <button class="cancel-btn" (click)="cancelRecording()">
+                Cancel
+            </button>
+        </div>
     </div>
+
+    <ng-container *ngIf="!isReviewing && !isProcessing">
+        <p class="separator">OR</p>
+
+        <!-- Story Text Box -->
+        <div class="story-entry">
+            <textarea
+                [(ngModel)]="story"
+                placeholder="Write your story here..."
+                rows="4"
+                class="story-textarea"
+                (input)="onStoryInput()"
+            ></textarea>
+            <button class="confirm-btn" (click)="confirmSubmitStory()">
+                Submit
+            </button>
+        </div>
+    </ng-container>
 
     <div class="back-btn-container">
         <button class="back-btn" (click)="onBackClick()">Back</button>

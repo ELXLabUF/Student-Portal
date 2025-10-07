@@ -185,18 +185,16 @@
                 </span>
             </div>
             <div class="transcript-icons">
-                <div class="edit-btn">
-                    <!-- Story Review Edit Icon -->
-                    <span
-                        class="material-icons"
-                        [ngStyle]="{
-                            color: transcript.edited ? '#90d600' : 'inherit'
-                        }"
-                        (click)="toggleEdit()"
-                    >
-                        edit
-                    </span>
-                </div>
+                <!-- Story Review Edit Icon -->
+                <span
+                    class="material-icons"
+                    title="Edit story"
+                    [ngClass]="{ 'active-icon': transcript.edited }"
+                    [class.icon-hidden]="transcript.show_to_teacher"
+                    (click)="toggleEdit()"
+                >
+                    edit
+                </span>
 
                 <!-- Select Uploaded Image Icon -->
                 <!--<div class="image-btn">
@@ -227,19 +225,18 @@
                 </div>-->
 
                 <!-- Send to Teacher Icon -->
-                <div class="send-btn">
-                    <span
-                        class="material-icons"
-                        [ngStyle]="{
-                            color: transcript.show_to_teacher
-                                ? '#90d600'
-                                : 'inherit'
-                        }"
-                        (click)="sendToTeacher()"
-                    >
-                        send
-                    </span>
-                </div>
+                <span
+                    class="material-icons"
+                    [title]="
+                        transcript.show_to_teacher
+                            ? 'Sent to teacher'
+                            : 'Send to teacher'
+                    "
+                    [ngClass]="{ 'active-icon': transcript.show_to_teacher }"
+                    (click)="sendToTeacher()"
+                >
+                    send
+                </span>
             </div>
         </div>
     </div>

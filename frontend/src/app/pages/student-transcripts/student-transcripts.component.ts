@@ -38,6 +38,7 @@ export class StudentTranscriptsComponent implements OnInit, OnDestroy {
 
     topics: string[] = [];
     filterTopic: string = '';
+    filterStatus: string = '';
 
     //activeTranscript: NewExperience | null = null;
     //showModal: boolean = false;
@@ -274,22 +275,52 @@ export class StudentTranscriptsComponent implements OnInit, OnDestroy {
         );
     }
 
+    onStatusDropdownClick(): void {
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            "'Status' filter dropdown",
+            'Open status filter options'
+        );
+    }
+
     applyFilter(): void {
         this.userInteractionService.logUserInteraction(
-            'Selected',
-            `'${this.filterTopic}' from topic dropdown`,
-            'Filter stories by selected topic'
+            'Applied',
+            `Filters (Topic: '${this.filterTopic || 'All'}', Status: '${
+                this.filterStatus || 'All'
+            }')`,
+            'Filter stories by selected criteria'
         );
 
         this.displayedTranscripts = this.allTranscripts.filter((item) => {
             const matchesTopic = this.filterTopic
                 ? item.topic === this.filterTopic
                 : true;
-            return matchesTopic;
+
+            const matchesStatus = (() => {
+                switch (this.filterStatus) {
+                    case 'edited':
+                        return item.edited === true;
+                    case 'not_edited':
+                        return item.edited === false;
+                    case 'sent':
+                        return item.show_to_teacher === true;
+                    case 'not_sent':
+                        return item.show_to_teacher === false;
+                    default:
+                        return true;
+                }
+            })();
+
+            return matchesTopic && matchesStatus;
         });
     }
 
-    resetFilter(): void {
+    trackByTranscriptId(index: number, transcript: NewExperience): string {
+        return transcript.id;
+    }
+
+    /*resetFilter(): void {
         this.userInteractionService.logUserInteraction(
             'Selected',
             "'All Topics' from topic dropdown",
@@ -298,7 +329,7 @@ export class StudentTranscriptsComponent implements OnInit, OnDestroy {
 
         this.filterTopic = '';
         this.displayedTranscripts = this.allTranscripts;
-    }
+    }*/
 
     /*openImageModal(transcriptId: string) {
         const matchedTranscript = this.allTranscripts.find(

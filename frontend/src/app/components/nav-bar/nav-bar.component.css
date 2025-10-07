@@ -16,6 +16,7 @@ header {
     font-size: 24px;
     background-color: #ff8800;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+    z-index: 1000;
 }
 
 .logo {
@@ -33,6 +34,7 @@ header {
     list-style: none;
     display: flex;
     flex-direction: row;
+    align-items: center;
 }
 
 .nav-links a {
@@ -43,6 +45,8 @@ header {
 
 .nav-links li {
     padding: 0px 20px;
+    display: flex; /* Added for more robust vertical centering */
+    align-items: center; /* Added for more robust vertical centering */
 }
 
 .nav-links li a {
@@ -52,4 +56,51 @@ header {
 .nav-links li a:hover {
     color: #cc6600;
     cursor: pointer;
+}
+
+.profile-dropdown {
+    position: relative; /* Needed for dropdown positioning */
+    display: flex;
+    align-items: center;
+}
+
+.user-icon {
+    font-size: 48px; /* Adjust icon size */
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.user-icon:hover {
+    transform: scale(1.1);
+}
+
+.dropdown-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 70px; /* Position below the icon */
+    right: -5px;
+    background-color: #ffaa00;
+    border: 2px solid #ff8800;
+    border-radius: 8px;
+    min-width: 160px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: hidden; /* Ensures border-radius is respected by children */
+}
+
+.dropdown-menu.show {
+    display: block; /* Show when triggered */
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 12px 20px;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+.dropdown-divider {
+    height: 2px;
+    margin: 4px 0;
+    overflow: hidden;
+    background-color: #ff8800;
+    border: 0;
 }

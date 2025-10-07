@@ -39,6 +39,7 @@
     justify-content: center;
     margin-bottom: 30px;
     gap: 15px;
+    min-height: 150px; /* Prevents layout jump */
 }
 
 .record-btn {
@@ -71,6 +72,63 @@
     font-size: 20px;
     font-weight: 600;
     color: #cc0000;
+}
+
+.processing-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.spinner {
+    border: 5px solid #e2dedc;
+    border-top: 5px solid #ff8800;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.processing-text {
+    font-family: "Barlow", sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #3f3734;
+}
+
+.audio-review {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.review-prompt {
+    font-size: 24px;
+    font-weight: 600;
+    color: #3f3734;
+}
+
+.audio-player {
+    width: 60%;
+    min-width: 400px;
+}
+
+.review-buttons {
+    display: flex;
+    gap: 20px;
 }
 
 .separator {
@@ -120,6 +178,24 @@
 .confirm-btn:hover,
 .back-btn:hover {
     background-color: #cc6600;
+}
+
+.cancel-btn {
+    width: 200px;
+    background-color: #8c807b;
+    color: white;
+    font-family: "Nova Square", sans-serif;
+    font-size: 35px;
+    line-height: 40px;
+    border: none;
+    border-radius: 15px;
+    padding: 10px 0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.cancel-btn:hover {
+    background-color: #6b625d;
 }
 
 .back-btn {

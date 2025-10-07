@@ -38,6 +38,11 @@ export class CreateStoryComponent implements OnInit, OnDestroy {
     mediaRecorder!: MediaRecorder;
     recordedChunks: BlobPart[] = [];
 
+    isReviewing = false;
+    isProcessing = false;
+    recordedAudioUrl: string | null = null;
+    recordedAudioBlob: Blob | null = null;
+
     activeCapture = 'Default';
     selectedTopic: string = '';
     capturePrompt: string = '';
@@ -69,6 +74,8 @@ export class CreateStoryComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.userInteractionService.endPageTimerAndLog("'Record A Story' page");
+
+        this.resetRecordingState();
 
         if (this.authSub) {
             this.authSub.unsubscribe();
@@ -102,7 +109,6 @@ export class CreateStoryComponent implements OnInit, OnDestroy {
                 return;
             }
 
-            // Get active capture from Classroom collection document (classroomName)
             const classroomDocRef = doc(
                 this.firestore,
                 'Classroom',
@@ -122,13 +128,8 @@ export class CreateStoryComponent implements OnInit, OnDestroy {
             }
 
             const data = classroomSnap.data();
-            // Save values to class, defaulting to '' if missing.
             this.selectedTopic = data?.['selected_topic'] ?? '';
             this.capturePrompt = data?.['capture_prompt'] ?? '';
-
-            //if (this.selectedTopic) {
-            //    this.activeCapture = this.selectedTopic;
-            //}
         } catch (error) {
             console.error('Error loading active capture:', error);
         }
@@ -147,7 +148,7 @@ export class CreateStoryComponent implements OnInit, OnDestroy {
             this.userInteractionService.logUserInteraction(
                 'Clicked',
                 "'Stop Recording' button",
-                'Stop audio recording and save story'
+                'Stop audio recording and start processing'
             );
             this.stopRecording();
         } else {
@@ -187,94 +188,36 @@ export class CreateStoryComponent implements OnInit, OnDestroy {
         }
     }
 
-    async stopRecording() {
+    stopRecording() {
         if (!this.mediaRecorder) return;
 
-        this.mediaRecorder.onstop = async () => {
+        this.isRecording = false;
+        this.isProcessing = true; // Show spinner immediately
+
+        this.mediaRecorder.onstop = () => {
             const audioBlob = new Blob(this.recordedChunks, {
                 type: 'audio/mp3',
             });
-            if (!this.user) {
-                this.openAlertDialog('Error', 'User not authenticated.');
-                this.isRecording = false;
-                return;
-            }
+            this.recordedAudioBlob = audioBlob;
+            this.recordedAudioUrl = URL.createObjectURL(audioBlob);
 
-            const deviceId = this.user.uid;
-
-            try {
-                // Upload audio file first
-                const time = new Date();
-                const pad = (n: number) => n.toString().padStart(2, '0');
-                const formattedDate =
-                    [
-                        time.getFullYear(),
-                        pad(time.getMonth() + 1),
-                        pad(time.getDate()),
-                    ].join('-') +
-                    'T' +
-                    [
-                        pad(time.getHours()),
-                        pad(time.getMinutes()),
-                        pad(time.getSeconds()),
-                    ].join('-');
-
-                const cleanCapture = this.activeCapture.replace(
-                    /[^a-zA-Z0-9\-]/g,
-                    '-'
-                );
-                const fileName = `${cleanCapture}_${formattedDate}.mp3`;
-                const filePath = `voice_recordings/${deviceId}/${fileName}`;
-
-                const storageRef = ref(this.storage, filePath);
-                await uploadBytes(storageRef, audioBlob);
-
-                const transcriptText = '';
-
-                // Create the NewExperience object with all required fields
-                const newExperience: NewExperience = {
-                    id: `${deviceId}_${formattedDate}`,
-                    capture: this.activeCapture,
-                    topic: this.selectedTopic,
-                    creation_date: Timestamp.fromDate(time),
-                    device_id: deviceId,
-                    recording_path: filePath,
-                    show_to_teacher: false,
-                    transcript: transcriptText,
-                    translation: transcriptText,
-                    original_transcript: transcriptText,
-                    imageUrl: '',
-                    uploadedImageUrl: '',
-                    edited: false,
-                    ai_feedback: '',
-                    feedback_rating: 0,
-                    previous_feedback: [],
-                };
-
-                await this.experienceService.addExperience(newExperience);
-
-                this.openAlertDialog(
-                    'Success',
-                    'Audio recording uploaded and story saved successfully.'
-                );
-            } catch (error) {
-                console.error('Error saving audio and transcript:', error);
-                this.openAlertDialog(
-                    'Failed',
-                    'Failed to upload audio and save story. Please try again.'
-                );
-            }
-            this.isRecording = false;
+            this.isProcessing = false; // Hide spinner
+            this.isReviewing = true; // Show player
         };
         this.mediaRecorder.stop();
-        this.isRecording = false;
     }
 
-    async uploadAudio(audioBlob: Blob) {
-        if (!this.user) {
-            this.openAlertDialog('Error', 'User not authenticated.');
+    async submitRecording() {
+        if (!this.recordedAudioBlob || !this.user) {
+            this.openAlertDialog(
+                'Error',
+                'No recording available or user not authenticated.'
+            );
             return;
         }
+
+        const deviceId = this.user.uid;
+        const audioBlob = this.recordedAudioBlob;
 
         try {
             const time = new Date();
@@ -292,35 +235,76 @@ export class CreateStoryComponent implements OnInit, OnDestroy {
                     pad(time.getSeconds()),
                 ].join('-');
 
-            // File name as: {activeCapture}_2025-04-14T13-11-58.mp3
             const cleanCapture = this.activeCapture.replace(
                 /[^a-zA-Z0-9\-]/g,
                 '-'
             );
             const fileName = `${cleanCapture}_${formattedDate}.mp3`;
-            const filePath = `voice_recordings/${this.user.uid}/${fileName}`;
+            const filePath = `voice_recordings/${deviceId}/${fileName}`;
 
             const storageRef = ref(this.storage, filePath);
             await uploadBytes(storageRef, audioBlob);
 
+            const newExperience: NewExperience = {
+                id: `${deviceId}_${formattedDate}`,
+                capture: this.activeCapture,
+                topic: this.selectedTopic,
+                creation_date: Timestamp.fromDate(time),
+                device_id: deviceId,
+                recording_path: filePath,
+                show_to_teacher: false,
+                transcript: '',
+                translation: '',
+                original_transcript: '',
+                imageUrl: '',
+                uploadedImageUrl: '',
+                edited: false,
+                ai_feedback: '',
+                feedback_rating: 0,
+                previous_feedback: [],
+            };
+
+            await this.experienceService.addExperience(newExperience);
+
             this.openAlertDialog(
-                'Success: Recording Uploaded',
-                `Your audio recording was uploaded successfully as ${fileName}.`
+                'Success',
+                'Your story was submitted successfully.'
             );
         } catch (error) {
-            console.error('Upload failed:', error);
+            console.error('Error submitting recording:', error);
             this.openAlertDialog(
-                'Failed: Upload Failed',
-                'Failed to upload the audio. Please try again.'
+                'Failed',
+                'Failed to submit your story. Please try again.'
             );
+        } finally {
+            this.resetRecordingState();
         }
     }
 
+    cancelRecording() {
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            "'Cancel' recording button",
+            'Recording was discarded'
+        );
+        this.resetRecordingState();
+    }
+
+    private resetRecordingState() {
+        if (this.recordedAudioUrl) {
+            URL.revokeObjectURL(this.recordedAudioUrl);
+        }
+        this.isReviewing = false;
+        this.isRecording = false;
+        this.isProcessing = false;
+        this.recordedAudioUrl = null;
+        this.recordedAudioBlob = null;
+        this.recordedChunks = [];
+    }
+
     onStoryInput(): void {
-        // Clear the previous timeout to reset the timer
         clearTimeout(this.storyInputTimeout);
 
-        // Set a new timeout to log the interaction after a pause
         this.storyInputTimeout = setTimeout(() => {
             this.logStoryChange();
         }, this.debounceTime);
