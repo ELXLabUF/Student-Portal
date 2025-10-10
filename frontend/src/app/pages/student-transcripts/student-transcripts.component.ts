@@ -101,6 +101,7 @@ export class StudentTranscriptsComponent implements OnInit, OnDestroy {
             });
         });
 
+        await this.fetchAndSetDefaultTopic();
         this.loadAndProcessExperiences();
 
         /*if (this.user?.uid) {
@@ -135,6 +136,54 @@ export class StudentTranscriptsComponent implements OnInit, OnDestroy {
             });
     }*/
 
+    private async fetchAndSetDefaultTopic(): Promise<void> {
+        if (!this.user) {
+            console.log('User not logged in, cannot fetch default topic.');
+            return;
+        }
+
+        try {
+            // Find student's classroom
+            const studentQuery = query(
+                collection(this.firestore, 'NewStudents'),
+                where('device_id', '==', this.user.uid)
+            );
+            const studentQuerySnap = await getDocs(studentQuery);
+
+            if (studentQuerySnap.empty) {
+                console.log(
+                    'No student document found, cannot find classroom.'
+                );
+                return;
+            }
+
+            const classroomName = studentQuerySnap.docs[0].data()['classroom'];
+            if (!classroomName) {
+                console.log('Classroom field not found on student document.');
+                return;
+            }
+
+            // Get classroom data
+            const classroomDocRef = doc(
+                this.firestore,
+                'Classroom',
+                classroomName
+            );
+            const classroomSnap = await getDoc(classroomDocRef);
+
+            if (classroomSnap.exists()) {
+                const classroomData = classroomSnap.data();
+                // Check for an active topic and set it as the default filter
+                if (classroomData && classroomData['selected_topic']) {
+                    this.filterTopic = classroomData['selected_topic'];
+                    console.log(`Default filter set to: ${this.filterTopic}`);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching default topic:', error);
+        }
+    }
+
     async loadAndProcessExperiences(): Promise<void> {
         this.experienceService
             .getExperiences()
@@ -162,32 +211,37 @@ export class StudentTranscriptsComponent implements OnInit, OnDestroy {
                     }
                 });
 
-                // 3. Continue with existing logic from your original ngOnInit
-                this.allTranscripts = experiences
-                    .map((exp) => ({
-                        id: exp.id,
-                        device_id: exp.device_id,
-                        capture: exp.capture,
-                        topic: exp.topic,
-                        transcript: exp.transcript,
-                        translation: exp.translation,
-                        original_transcript: exp.original_transcript,
-                        creation_date: exp.creation_date,
-                        recording_path: exp.recording_path,
-                        show_to_teacher: exp.show_to_teacher,
-                        imageUrl: exp.imageUrl,
-                        uploadedImageUrl: exp.uploadedImageUrl,
-                        edited: exp.edited,
-                        ai_feedback: exp.ai_feedback,
-                        feedback_rating: exp.feedback_rating,
-                        previous_feedback: exp.previous_feedback,
-                    }))
-                    .sort(
-                        (a, b) =>
-                            b.creation_date.toDate().getTime() -
-                            a.creation_date.toDate().getTime()
-                    );
-                this.displayedTranscripts = this.allTranscripts;
+                //this.allTranscripts = experiences
+                //    .map((exp) => ({
+                //        id: exp.id,
+                //        device_id: exp.device_id,
+                //        capture: exp.capture,
+                //        topic: exp.topic,
+                //        transcript: exp.transcript,
+                //        translation: exp.translation,
+                //        original_transcript: exp.original_transcript,
+                //        creation_date: exp.creation_date,
+                //        recording_path: exp.recording_path,
+                //        show_to_teacher: exp.show_to_teacher,
+                //        imageUrl: exp.imageUrl,
+                //        uploadedImageUrl: exp.uploadedImageUrl,
+                //        edited: exp.edited,
+                //        ai_feedback: exp.ai_feedback,
+                //        feedback_rating: exp.feedback_rating,
+                //        previous_feedback: exp.previous_feedback,
+                //    }))
+                //    .sort(
+                //        (a, b) =>
+                //            b.creation_date.toDate().getTime() -
+                //            a.creation_date.toDate().getTime()
+                //    );
+                //this.displayedTranscripts = this.allTranscripts;
+
+                this.allTranscripts = experiences.sort(
+                    (a, b) =>
+                        b.creation_date.toDate().getTime() -
+                        a.creation_date.toDate().getTime()
+                );
 
                 this.topics = Array.from(
                     new Set(
@@ -196,6 +250,8 @@ export class StudentTranscriptsComponent implements OnInit, OnDestroy {
                             .filter(Boolean) as string[]
                     )
                 );
+
+                this.applyFilter();
             });
     }
 
