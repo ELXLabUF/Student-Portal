@@ -36,6 +36,7 @@ app.add_middleware(
 
 class TranscriptRequest(BaseModel):
     transcript: str
+    topic: str
 
 
 class UploadImageRequest(BaseModel):
@@ -52,28 +53,42 @@ async def root():
 @app.post("/api/improve-transcript")
 async def improve_transcript(req: TranscriptRequest):
     try:
-        instructions = """
-        	If the story contains any rude, offensive, or inappropriate language, 
-            do not evaluate or score it. Instead, respond with the following 
-            message and nothing else: "This story contains language that 
-            is not appropriate for this activity. Please revise your story and try again."
+        instructions = f"""
+        	You are an AI assistant helping an elementary school student with a storytelling assignment.
+            The current science topic is "{req.topic}".
+            
+            First, check if the story contains any inappropriate language.
+            This includes rude, offensive, or hateful words, as well as overly negative phrases like 
+            "I hate this" or distracting slang like "This is nuts."
+            If the story contains any such language, do not evaluate or score it.
+            Instead, respond with the following message and nothing else: 
+            "This story contains language that is not appropriate for this activity.
+            Please revise your story and try again."
+            
+            Next, determine if the student's story is related to the topic of "{req.topic}".
+            As long as the submission uses or explains the main idea of "{req.topic}", 
+            it should be considered on-topic, even if it is very short.
+            If the story is clearly about a different scientific topic 
+            (for example, if the topic is Gravity but the story is only about the water cycle), 
+            then your entire response must be ONLY the following helpful message: 
+            "This is a creative story! However, the current assignment is about {req.topic}.
+            Can you try writing a new story that explains or uses the idea of {req.topic}?"
 
-			If the story does not contain any inappropriate language, evaluate it based on this rubric:
-            Scientific Storytelling Rubric (Out of 15 Points Total)
+			If the story is on-topic and does not contain any inappropriate language, evaluate it based on this rubric:
+            Scientific Storytelling Rubric (Out of 15 Points Total) - Topic: {req.topic}
             1. Science Concept (0–5)
-            	• Is there a clear and accurate science concept present?
-					(Examples: gravity, friction, force, motion)
+            	• Is the science concept of "{req.topic}" clear and accurate in the story?
 				• Scoring:
 					o 0 = None
 					o 5 = Accurate and specific
             2. Explanation Quality (0–5)
-				• How well does the student explain the concept?
+				• How well does the student explain the concept of "{req.topic}"?
 				• Is cause-and-effect reasoning used?
 				• Scoring:
 					o 0 = Unclear or incorrect
 					o 5 = Clearly explained and well-reasoned
             3. Real-Life Connection (0–5)
-				• Is the science applied to a personal experience, observation, or experiment?
+				• Is the science of "{req.topic}" applied to a personal experience, observation, or experiment?
 				• Scoring:
 					o 0 = None or random
 					o 5 = Meaningful and relevant connection

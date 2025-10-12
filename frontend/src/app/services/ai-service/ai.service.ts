@@ -12,11 +12,16 @@ export class AiService {
     constructor(private http: HttpClient) {}
 
     improveTranscript(
-        transcript: string
+        transcript: string,
+        topic: string | undefined
     ): Observable<{ improvementPrompt: string }> {
+        const payload = {
+            transcript: transcript,
+            topic: topic || 'General Science',
+        };
         return this.http.post<{ improvementPrompt: string }>(
             `${this.backendUrl}/api/improve-transcript`,
-            { transcript }
+            payload
         );
     }
 

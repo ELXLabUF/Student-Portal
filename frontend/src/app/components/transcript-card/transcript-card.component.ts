@@ -154,25 +154,33 @@ export class TranscriptCardComponent implements OnChanges {
         this.isGeneratingFeedback = true;
         this.improvementPrompt = ''; // Clear previous prompt while loading
 
-        this.aiService.improveTranscript(this.transcript.transcript).subscribe({
-            next: async (response) => {
-                this.improvementPrompt = response.improvementPrompt;
-                await this.experienceService.updateExperience(this.transcript, {
-                    ai_feedback: response.improvementPrompt,
-                });
-                this.transcript.ai_feedback = response.improvementPrompt;
-                this.hasRated = false;
-                this.isGeneratingFeedback = false;
-            },
-            error: (err) => {
-                console.error('Error improving transcript:', err);
-                this.openAlertDialog(
-                    'Failed: ChatGPT AI Feedback Not Generated',
-                    'Failed to generate ChatGPT AI feedback. Please try again.'
-                );
-                this.isGeneratingFeedback = false;
-            },
-        });
+        this.aiService
+            .improveTranscript(
+                this.transcript.transcript,
+                this.transcript.topic
+            )
+            .subscribe({
+                next: async (response) => {
+                    this.improvementPrompt = response.improvementPrompt;
+                    await this.experienceService.updateExperience(
+                        this.transcript,
+                        {
+                            ai_feedback: response.improvementPrompt,
+                        }
+                    );
+                    this.transcript.ai_feedback = response.improvementPrompt;
+                    this.hasRated = false;
+                    this.isGeneratingFeedback = false;
+                },
+                error: (err) => {
+                    console.error('Error improving transcript:', err);
+                    this.openAlertDialog(
+                        'Failed: ChatGPT AI Feedback Not Generated',
+                        'Failed to generate ChatGPT AI feedback. Please try again.'
+                    );
+                    this.isGeneratingFeedback = false;
+                },
+            });
     }
 
     async saveEdit(): Promise<void> {
