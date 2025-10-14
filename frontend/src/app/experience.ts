@@ -31,4 +31,5 @@ export interface NewExperience {
         feedback_rating: number;
         feedback_utilization_rating: number;
     }>;
+    is_deleted?: boolean;
 }

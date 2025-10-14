@@ -80,6 +80,28 @@ html {
     line-height: 30px;
 }
 
+.input-with-icon {
+    position: relative;
+    width: 60%;
+    margin-bottom: 20px;
+}
+
+.input-with-icon input {
+    width: 100%;
+    padding-right: 45px;
+    margin-bottom: 0;
+}
+
+.input-with-icon .material-icons {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    user-select: none;
+    color: #3f3734;
+}
+
 button {
     background-color: #ff8800;
     color: #ffffff;

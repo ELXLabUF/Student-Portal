@@ -262,6 +262,7 @@ export class CreateStoryComponent implements OnInit, OnDestroy {
                 ai_feedback: '',
                 feedback_rating: 0,
                 previous_feedback: [],
+                is_deleted: false,
             };
 
             await this.experienceService.addExperience(newExperience);
@@ -403,6 +404,7 @@ export class CreateStoryComponent implements OnInit, OnDestroy {
                 ai_feedback: '',
                 feedback_rating: 0,
                 previous_feedback: [],
+                is_deleted: false,
             };
 
             await this.experienceService.addExperience(newExperience);

@@ -237,11 +237,13 @@ export class StudentTranscriptsComponent implements OnInit, OnDestroy {
                 //    );
                 //this.displayedTranscripts = this.allTranscripts;
 
-                this.allTranscripts = experiences.sort(
-                    (a, b) =>
-                        b.creation_date.toDate().getTime() -
-                        a.creation_date.toDate().getTime()
-                );
+                this.allTranscripts = experiences
+                    .filter((exp) => !exp.is_deleted)
+                    .sort(
+                        (a, b) =>
+                            b.creation_date.toDate().getTime() -
+                            a.creation_date.toDate().getTime()
+                    );
 
                 this.topics = Array.from(
                     new Set(

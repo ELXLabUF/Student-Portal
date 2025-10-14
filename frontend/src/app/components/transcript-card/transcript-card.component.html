@@ -196,6 +196,16 @@
                     edit
                 </span>
 
+                <!-- Delete Icon -->
+                <span
+                    class="material-icons"
+                    title="Delete story"
+                    [class.icon-hidden]="transcript.show_to_teacher"
+                    (click)="deleteStory()"
+                >
+                    delete
+                </span>
+
                 <!-- Select Uploaded Image Icon -->
                 <!--<div class="image-btn">
                     <span

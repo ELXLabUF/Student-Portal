@@ -14,6 +14,7 @@ export class LoginComponent {
     //private auth = inject(Auth) // Firebase Auth instance if needed
     username: string = '';
     password: string = '';
+    passwordVisible: boolean = false;
     errorMessage: string = '';
 
     constructor(private router: Router, private authService: AuthService) {}
@@ -28,5 +29,9 @@ export class LoginComponent {
             .catch((error) => {
                 this.errorMessage = error.message;
             });
+    }
+
+    togglePasswordVisibility(): void {
+        this.passwordVisible = !this.passwordVisible;
     }
 }

@@ -373,6 +373,52 @@ export class TranscriptCardComponent implements OnChanges {
         this.editedText = ''; // Clear the edited text
     }
 
+    deleteStory(): void {
+        this.userInteractionService.logUserInteraction(
+            'Clicked',
+            `'Delete' icon for story: ${this.transcript.id}`,
+            'Open delete confirmation dialog'
+        );
+
+        this.openConfirmDialog(
+            'Delete Story',
+            'Are you sure you want to delete this story? Once deleted, you will not be able to view it or send it to your teacher.'
+        ).subscribe(async (decision: boolean) => {
+            if (decision) {
+                this.userInteractionService.logUserInteraction(
+                    'Clicked',
+                    "'Confirm' on delete story dialog",
+                    'User story soft-deleted'
+                );
+                try {
+                    await this.experienceService.updateExperience(
+                        this.transcript,
+                        {
+                            is_deleted: true,
+                        }
+                    );
+                    this.openAlertDialog(
+                        'Success: Story Deleted',
+                        'The story was deleted successfully!'
+                    );
+                    // The component will disappear automatically because the parent's list will be updated by the observable.
+                } catch (err) {
+                    console.error('Failed to delete story', err);
+                    this.openAlertDialog(
+                        'Failed: Story Not Deleted',
+                        'Failed to delete the story. Please try again.'
+                    );
+                }
+            } else {
+                this.userInteractionService.logUserInteraction(
+                    'Clicked',
+                    "'Cancel' on delete story dialog",
+                    'User cancelled story deletion'
+                );
+            }
+        });
+    }
+
     sendToTeacher(): void {
         // Check if an image was selected for this story
         //if (this.transcript.imageUrl === '') {
