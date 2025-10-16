@@ -7,11 +7,13 @@ import { ClassStoriesComponent } from './pages/class-stories/class-stories.compo
 import { StudentTranscriptsComponent } from './pages/student-transcripts/student-transcripts.component';
 import { UploadImagesComponent } from './pages/upload-images/upload-images.component';
 import { CreateStoryComponent } from './pages/create-story/create-story.component';
-import { authGuard } from '../app/guards/auth-guard/auth.guard';
+import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
+import { authGuard } from './guards/auth-guard/auth.guard';
+import { loginGuard } from './guards/login-guard/login.guard';
 
 export const routes: Routes = [
-    { path: '', redirectTo: '/login', pathMatch: 'full' }, // Default route
-    { path: 'login', component: LoginComponent },
+    { path: '', redirectTo: '/login', pathMatch: 'full' },
+    { path: 'login', component: LoginComponent, canActivate: [loginGuard] },
     { path: 'home', component: HomeComponent, canActivate: [authGuard] },
     { path: 'about', component: AboutComponent },
     { path: 'account', component: AccountComponent, canActivate: [authGuard] },
@@ -35,5 +37,10 @@ export const routes: Routes = [
         component: CreateStoryComponent,
         canActivate: [authGuard],
     },
-    { path: '**', redirectTo: '/login' },
+    {
+        path: 'not-found',
+        component: PageNotFoundComponent,
+        canActivate: [authGuard],
+    },
+    { path: '**', redirectTo: '/not-found' },
 ];

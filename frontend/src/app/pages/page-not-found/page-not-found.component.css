@@ -1,0 +1,46 @@
+.not-found-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 70vh;
+    text-align: center;
+    font-family: "Barlow", sans-serif;
+    color: #3f3734;
+}
+
+.not-found-container h1 {
+    font-family: "Nova Square", sans-serif;
+    font-size: 120px;
+    color: #ff8800;
+    margin: 0;
+    line-height: 1;
+}
+
+.not-found-container h2 {
+    font-family: "Nova Square", sans-serif;
+    font-size: 45px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.not-found-container p {
+    font-size: 30px;
+    margin-bottom: 30px;
+}
+
+.not-found-container a {
+    background-color: #ff8800;
+    color: #ffffff;
+    border-radius: 20px;
+    padding: 15px 40px;
+    font-family: "Nova Square", sans-serif;
+    font-size: 30px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.not-found-container a:hover {
+    background-color: #cc6600;
+}
