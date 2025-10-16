@@ -5,21 +5,31 @@ import {
     signInWithEmailAndPassword,
     signOut,
     updatePassword,
+    User,
 } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
+import { first, map, shareReplay } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
 })
 export class AuthService {
-    constructor(private auth: Auth) {}
+    public readonly isAuthStateResolved$: Observable<boolean>;
+
+    constructor(private auth: Auth) {
+        this.isAuthStateResolved$ = authState(this.auth).pipe(
+            first((user) => user !== undefined),
+            map(() => true),
+            shareReplay(1)
+        );
+    }
 
     async login(email: string, password: string): Promise<any> {
         return signInWithEmailAndPassword(this.auth, email, password);
     }
 
     // Expose authState as an observable
-    get currentUser(): Observable<any> {
+    get currentUser(): Observable<User | null> {
         return authState(this.auth);
     }
 

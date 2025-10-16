@@ -2,6 +2,15 @@
     <app-nav-bar></app-nav-bar>
     <section>
         <!-- <app-home></app-home> -->
-        <router-outlet></router-outlet>
+        <div *ngIf="isAuthResolved$ | async; else loading">
+            <router-outlet></router-outlet>
+        </div>
+
+        <ng-template #loading>
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <p class="loading-text">Loading Stories...</p>
+            </div>
+        </ng-template>
     </section>
 </main>

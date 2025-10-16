@@ -7,16 +7,33 @@ import { ClassStoriesComponent } from './pages/class-stories/class-stories.compo
 import { StudentTranscriptsComponent } from './pages/student-transcripts/student-transcripts.component';
 import { UploadImagesComponent } from './pages/upload-images/upload-images.component';
 import { CreateStoryComponent } from './pages/create-story/create-story.component';
+import { authGuard } from '../app/guards/auth-guard/auth.guard';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/login', pathMatch: 'full' }, // Default route
     { path: 'login', component: LoginComponent },
-    { path: 'home', component: HomeComponent },
+    { path: 'home', component: HomeComponent, canActivate: [authGuard] },
     { path: 'about', component: AboutComponent },
-    { path: 'account', component: AccountComponent },
-    { path: 'class', component: ClassStoriesComponent },
-    { path: 'stories', component: StudentTranscriptsComponent },
-    { path: 'upload', component: UploadImagesComponent },
-    { path: 'create-story', component: CreateStoryComponent },
+    { path: 'account', component: AccountComponent, canActivate: [authGuard] },
+    {
+        path: 'class',
+        component: ClassStoriesComponent,
+        canActivate: [authGuard],
+    },
+    {
+        path: 'stories',
+        component: StudentTranscriptsComponent,
+        canActivate: [authGuard],
+    },
+    {
+        path: 'upload',
+        component: UploadImagesComponent,
+        canActivate: [authGuard],
+    },
+    {
+        path: 'create-story',
+        component: CreateStoryComponent,
+        canActivate: [authGuard],
+    },
     { path: '**', redirectTo: '/login' },
 ];
